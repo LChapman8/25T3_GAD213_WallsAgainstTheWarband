@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 53be0a606a3bc7049b009d910fd2a116
+timeCreated: 1450543645
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 62009
+  packageName: TopDown Nature Kit
+  packageVersion: 1.1
+  assetPath: Assets/Top Down Nature Kit/Terrain/Splatting/Materials/Ground01.mat
+  uploadId: 116748

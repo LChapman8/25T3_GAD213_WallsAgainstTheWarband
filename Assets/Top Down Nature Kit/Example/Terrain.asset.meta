@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3be32e65e02e242a9b56a1388addf505
+timeCreated: 1461766780
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 62009
+  packageName: TopDown Nature Kit
+  packageVersion: 1.1
+  assetPath: Assets/Top Down Nature Kit/Example/Terrain.asset
+  uploadId: 116748
