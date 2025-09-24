@@ -8341,6 +8341,9 @@ MonoBehaviour:
   mainCamera: {fileID: 330585545}
   speed: 5
   terrain: {fileID: 1649294036}
+  animator: {fileID: 0}
+  snapToTerrain: 0
+  snapOffset: 0
 --- !u!4 &757759454 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 417154, guid: 8056d874141284d9080ae279bf682de0, type: 3}
@@ -9172,7 +9175,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5fb5db45c1bc4e649aac7ac88105527e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.37
+      value: 2.59
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5fb5db45c1bc4e649aac7ac88105527e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -9209,6 +9212,24 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 5fb5db45c1bc4e649aac7ac88105527e, type: 3}
       propertyPath: m_Name
       value: Player Builder
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 5fb5db45c1bc4e649aac7ac88105527e, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 354597d47b3fc6647b94c3158929a6ca, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 5fb5db45c1bc4e649aac7ac88105527e, type: 3}
+      propertyPath: m_WarningMessage
+      value: "\nBinding warning: Some generic clip(s) animate transforms that are
+        already bound by a Humanoid avatar. These transforms can only be changed
+        by Humanoid clips.\n\tTransform 'mixamorig:Hips'\n\tTransform 'mixamorig:LeftFoot'\n\tTransform
+        'mixamorig:LeftHandThumb2'\n\tTransform 'mixamorig:LeftHandIndex1'\n\tTransform
+        'mixamorig:Spine1'\n\tTransform 'mixamorig:LeftToeBase'\n\tTransform 'mixamorig:LeftHandThumb3'\n\tTransform
+        'mixamorig:RightArm'\n\tTransform 'mixamorig:LeftLeg'\n\tTransform 'mixamorig:LeftShoulder'\n\tand
+        more ...\n\tFrom animation clip 'mixamo.com'\n\tFrom animation clip 'mixamo.com'"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 5fb5db45c1bc4e649aac7ac88105527e, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
