@@ -45,13 +45,16 @@ public class TopDownCamera : MonoBehaviour
 
         transform.position = pos;
 
-        // Zoom: only move the camera along its **local forward axis** using localPosition
+        // Zoom: only move the camera along its local forward axis using localPosition
         float scroll = Input.GetAxis("Mouse ScrollWheel");
+        Debug.Log("scroll value is " + scroll);
         if (scroll != 0f)
         {
             Vector3 zoom = transform.forward * scroll * scrollSpeed;
-            float nextHeight = transform.position.y - zoom.y; // optional: keep Y consistent
-            if (nextHeight > minZoom && nextHeight < maxZoom)
+            float nextHeight = transform.position.y - zoom.y; // keep Y consistent
+            // if zoom is below minimum, set zoom to minimum
+            // if zoom is above max, set zoom to maximum 
+            if (nextHeight >= minZoom && nextHeight <= maxZoom)
             {
                 transform.position += zoom;
             }
