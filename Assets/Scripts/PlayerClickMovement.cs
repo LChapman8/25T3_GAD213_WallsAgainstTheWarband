@@ -2,14 +2,21 @@ using UnityEngine;
 
 public class PlayerClickMovement : MonoBehaviour
 {
+    [Header("Camera & Movement")]
     public Camera mainCamera;      // Assign your main camera
     public float speed = 5f;       // Movement speed
-    public Terrain terrain;        // Assign your terrain in Inspector
     public Animator animator;      // Drag your Animator in Inspector
 
-    [Header("Terrain Snapping")]
-    public bool snapToTerrain = false; // Toggle snapping on/off
-    public float snapOffset = 0.0f;    // Offset above terrain (adjust if sinking)
+    [Header("Fixed Height")]
+    public float fixedY = 0f;      // Y position the player should always stay at
+
+    [Header("Move VFX")]
+    public GameObject clickVFXPrefab;   // Prefab for normal move click indicator
+    public GameObject blockedVFXPrefab; // Prefab for forbidden click indicator
+    public LayerMask forbiddenLayer;    // Layer for forbidden zones
+
+    [Header("Audio")]
+    public AudioSource runAudio;         // Assign AudioSource with running clip
 
     private Vector3 targetPosition;
     private bool isMoving = false;
@@ -19,10 +26,12 @@ public class PlayerClickMovement : MonoBehaviour
         if (mainCamera == null)
             mainCamera = Camera.main;
 
-        if (terrain == null)
-            terrain = Terrain.activeTerrain;
-
         targetPosition = transform.position;
+
+        // Set the initial Y position
+        Vector3 pos = transform.position;
+        pos.y = fixedY;
+        transform.position = pos;
 
         if (animator == null)
             animator = GetComponent<Animator>();
@@ -30,24 +39,54 @@ public class PlayerClickMovement : MonoBehaviour
 
     void Update()
     {
+        HandleInput();
+        HandleMovement();
+        HandleAnimator();
+        HandleAudio();
+    }
+
+    private void HandleInput()
+    {
         // Right-click sets target
         if (Input.GetMouseButtonDown(1))
         {
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
+            if (Physics.Raycast(ray, out RaycastHit hit))
             {
+                // Check for forbidden zones
+                Collider[] hits = Physics.OverlapSphere(hit.point, 0.1f, forbiddenLayer);
+                if (hits.Length > 0)
+                {
+                    // Spawn blocked VFX
+                    if (blockedVFXPrefab != null)
+                    {
+                        GameObject vfx = Instantiate(blockedVFXPrefab, hit.point, Quaternion.identity);
+                        Destroy(vfx, 1f);
+                    }
+                    return; // Don't move
+                }
+
+                // Normal move
                 targetPosition = hit.point;
+                targetPosition.y = fixedY; // Keep target at fixed Y
                 isMoving = true;
+
+                // Spawn click VFX
+                if (clickVFXPrefab != null)
+                {
+                    GameObject vfx = Instantiate(clickVFXPrefab, hit.point, Quaternion.identity);
+                    Destroy(vfx, 1f);
+                }
             }
         }
+    }
 
-        // Move toward target
+    private void HandleMovement()
+    {
         if (isMoving)
         {
             Vector3 direction = targetPosition - transform.position;
-            direction.y = 0; // Horizontal movement only
+            direction.y = 0; // Ensure horizontal movement only
             float distanceThisFrame = speed * Time.deltaTime;
 
             if (direction.magnitude <= distanceThisFrame)
@@ -61,27 +100,28 @@ public class PlayerClickMovement : MonoBehaviour
                 if (direction != Vector3.zero)
                     transform.rotation = Quaternion.LookRotation(direction);
             }
-
-            // Snap to terrain if enabled
-            if (snapToTerrain && terrain != null)
-            {
-                float terrainHeight = terrain.SampleHeight(transform.position) + terrain.GetPosition().y + snapOffset;
-                Vector3 pos = transform.position;
-                pos.y = terrainHeight;
-                transform.position = pos;
-            }
         }
 
-        // Feed Animator
-        float currentSpeed = isMoving ? speed : 0f;
-        if (animator != null)
-            animator.SetFloat("Speed", currentSpeed);
+        // Keep Y at fixed level every frame
+        Vector3 currentPos = transform.position;
+        currentPos.y = fixedY;
+        transform.position = currentPos;
     }
 
-    // Call this when you want to play build animation
-    public void PlayBuildAnimation()
+    private void HandleAnimator()
     {
         if (animator != null)
-            animator.SetTrigger("Build");
+            animator.SetBool("IsMoving", isMoving);
+    }
+
+    private void HandleAudio()
+    {
+        if (runAudio != null)
+        {
+            if (isMoving && !runAudio.isPlaying)
+                runAudio.Play();
+            else if (!isMoving && runAudio.isPlaying)
+                runAudio.Stop();
+        }
     }
 }

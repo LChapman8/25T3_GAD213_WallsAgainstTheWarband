@@ -2,12 +2,14 @@ using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    public Transform[] waypoints; // Set in Inspector
+    public Transform[] waypoints;
     public float speed = 3f;
-    public float rotationOffsetY = 0f; // Adjust if goblin faces wrong way
-    public Terrain terrain; // Assign your terrain in Inspector
+    public float rotationOffsetY = 0f;
+    public Terrain terrain;
 
     private int currentWaypoint = 0;
+    public float rotationSpeed = 5f; // How fast goblin turns
+    public float stoppingDistance = 0.2f; // Start slowing near waypoint
 
     void Start()
     {
@@ -21,19 +23,35 @@ public class EnemyMovement : MonoBehaviour
 
         Transform target = waypoints[currentWaypoint];
         Vector3 direction = target.position - transform.position;
-        direction.y = 0; // Keep horizontal movement only
+        direction.y = 0;
+
+        float distance = direction.magnitude;
 
         // Move towards waypoint
-        transform.position += direction.normalized * speed * Time.deltaTime;
-
-        // Rotate to face waypoint with offset
-        if (direction != Vector3.zero)
+        if (distance > stoppingDistance)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = targetRotation * Quaternion.Euler(0f, rotationOffsetY, 0f);
+            Vector3 move = direction.normalized * speed * Time.deltaTime;
+            transform.position += move;
+        }
+        else
+        {
+            // Reached waypoint
+            currentWaypoint++;
+            if (currentWaypoint >= waypoints.Length)
+            {
+                ReachDestination();
+                return;
+            }
         }
 
-        // Snap Y position to terrain height
+        // Smooth rotation
+        if (direction != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction) * Quaternion.Euler(0f, rotationOffsetY, 0f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+
+        // Keep on terrain
         if (terrain != null)
         {
             float terrainHeight = terrain.SampleHeight(transform.position) + terrain.GetPosition().y;
@@ -41,22 +59,11 @@ public class EnemyMovement : MonoBehaviour
             pos.y = terrainHeight;
             transform.position = pos;
         }
-
-        // Check if reached waypoint
-        if (Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
-                             new Vector3(target.position.x, 0, target.position.z)) < 0.1f)
-        {
-            currentWaypoint++;
-            if (currentWaypoint >= waypoints.Length)
-            {
-                ReachDestination();
-            }
-        }
     }
 
     void ReachDestination()
     {
-        // TODO: deal damage to player base
         Destroy(gameObject);
     }
 }
+

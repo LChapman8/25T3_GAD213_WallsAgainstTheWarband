@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c6c2e5d277284f74bbca44c1a0aac8a3
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 280790
+  packageName: Click & Map Marker VFX
+  packageVersion: 1.0.2
+  assetPath: Assets/Click & Map Marker VFX/Scripts/SimpleCameraController.cs
+  uploadId: 737845

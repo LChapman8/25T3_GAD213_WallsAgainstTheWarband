@@ -10,14 +10,17 @@ public class TopDownCamera : MonoBehaviour
 
     [Header("Zoom Settings")]
     public float scrollSpeed = 20f;
-    public float minZoom = 10f;
-    public float maxZoom = 30f;
+    public float minZoom = 12f; // Zoom in limit (closer)
+    public float maxZoom = 49f; // Zoom out limit (further)
+    public float zoomSmoothness = 5f; // Higher = faster smoothing
 
     private Camera cam;
+    private float targetZoom;
 
     void Start()
     {
         cam = Camera.main;
+        targetZoom = transform.position.y; // start at current height
     }
 
     void Update()
@@ -45,19 +48,17 @@ public class TopDownCamera : MonoBehaviour
 
         transform.position = pos;
 
-        // Zoom: only move the camera along its local forward axis using localPosition
+        // --- Zoom ---
         float scroll = Input.GetAxis("Mouse ScrollWheel");
-        Debug.Log("scroll value is " + scroll);
         if (scroll != 0f)
         {
-            Vector3 zoom = transform.forward * scroll * scrollSpeed;
-            float nextHeight = transform.position.y - zoom.y; // keep Y consistent
-            // if zoom is below minimum, set zoom to minimum
-            // if zoom is above max, set zoom to maximum 
-            if (nextHeight >= minZoom && nextHeight <= maxZoom)
-            {
-                transform.position += zoom;
-            }
+            targetZoom -= scroll * scrollSpeed; // adjust target
+            targetZoom = Mathf.Clamp(targetZoom, minZoom, maxZoom);
         }
+
+        // Smoothly move Y toward target zoom
+        Vector3 smoothPos = transform.position;
+        smoothPos.y = Mathf.Lerp(transform.position.y, targetZoom, Time.deltaTime * zoomSmoothness);
+        transform.position = smoothPos;
     }
 }

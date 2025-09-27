@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 38b35347542e5af4c9b140950c5b18db
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 280790
+  packageName: Click & Map Marker VFX
+  packageVersion: 1.0.2
+  assetPath: Assets/Click & Map Marker VFX/Settings/UniversalRenderPipelineGlobalSettings.asset
+  uploadId: 737845

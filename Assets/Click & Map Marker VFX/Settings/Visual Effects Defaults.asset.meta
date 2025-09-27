@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 54a91a54950a5c94d8378ea33b84ea40
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 280790
+  packageName: Click & Map Marker VFX
+  packageVersion: 1.0.2
+  assetPath: Assets/Click & Map Marker VFX/Settings/Visual Effects Defaults.asset
+  uploadId: 737845
