@@ -8,7 +8,7 @@ public class EnemySpawner : MonoBehaviour
     public Transform waypointsParent; // Parent object of all waypoints
     public float spawnInterval = 2f; // Seconds between spawns
     public int totalEnemies = 10;
-    public Terrain terrain; // Assign terrain if you want enemies to snap immediately
+    public Terrain terrain; // Assign terrain if i want enemies to snap immediately
 
     void Start()
     {
