@@ -3,8 +3,8 @@ using TMPro;
 
 public class WaveCounterUI : MonoBehaviour
 {
-    public WaveManager waveManager; // Drag your WaveManager here
-    public TextMeshProUGUI waveText; // Drag your TMP text component here
+    public WaveManager waveManager; 
+    public TextMeshProUGUI waveText; 
 
     private void OnEnable()
     {

@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
-    public GameObject pauseMenuUI;  // Assign your Image object here
+    public GameObject pauseMenuUI;  
     private bool isPaused = false;
 
     void Update()
@@ -34,7 +34,7 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 0f;
         isPaused = true;
 
-        // Cursor already visible — just reaffirm
+        // Make sure curor stays on 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }

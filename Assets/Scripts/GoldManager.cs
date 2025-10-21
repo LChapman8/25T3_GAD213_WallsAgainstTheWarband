@@ -6,7 +6,7 @@ public class GoldManager : MonoBehaviour
     public int startingGold = 100;
     public int currentGold { get; private set; }
 
-    public TextMeshProUGUI goldText; // Drag your TMP gold text here
+    public TextMeshProUGUI goldText; 
 
     private void Start()
     {

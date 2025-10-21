@@ -21,7 +21,7 @@ public class BuildMenuManager : MonoBehaviour
         selectedTower = towerName;
         Debug.Log($"Selected Tower: {towerName}");
 
-        // Here you can highlight the selected button, play a sound, etc.
+        
     }
 
     public string GetSelectedTower()

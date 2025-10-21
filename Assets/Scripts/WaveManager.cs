@@ -8,15 +8,15 @@ public class WaveManager : MonoBehaviour
     public int currentWave = 0;
     public int totalWaves = 5;
     public float timeBetweenWaves = 5f;
-    public Button startWaveButton;         // Assign your Start Wave button in Inspector
-    public float fadeDuration = 0.5f;      // Duration for fade in/out
-    public float pulseAmount = 0.5f;       // How much to fade during pulse
-    public float pulseDuration = 0.3f;     // How long the pulse takes
+    public Button startWaveButton;         
+    public float fadeDuration = 0.5f;      
+    public float pulseAmount = 0.5f;       
+    public float pulseDuration = 0.3f;     
 
     [Header("Audio")]
-    public AudioSource audioSource;        // Main audio source
-    public AudioClip waveStartClip;        // First announcer clip (war horn)
-    public AudioClip midWaveClip;          // Second announcer clip (halfway through)
+    public AudioSource audioSource;        
+    public AudioClip waveStartClip;        
+    public AudioClip midWaveClip;         
 
     public delegate void WaveEvent(int waveNumber);
     public event WaveEvent OnWaveStarted;

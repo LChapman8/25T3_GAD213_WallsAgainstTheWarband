@@ -20,7 +20,7 @@ public class PlayerClickMovement : MonoBehaviour
     public AudioSource runAudio;
 
     [Header("Bridge Setup")]
-    public Bridge[] bridges; // Assign bridges in Inspector
+    public Bridge[] bridges; 
 
     private Vector3 targetPosition;
     private bool isMoving = false;
