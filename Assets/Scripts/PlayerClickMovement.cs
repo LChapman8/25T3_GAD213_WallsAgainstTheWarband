@@ -14,22 +14,25 @@ public class PlayerClickMovement : MonoBehaviour
     [Header("Move VFX")]
     public GameObject clickVFXPrefab;
     public GameObject blockedVFXPrefab;
-    public LayerMask forbiddenLayer;
+    public LayerMask forbiddenLayer; // For terrain obstacles etc.
 
     [Header("Audio")]
     public AudioSource runAudio;
 
     [Header("Bridge Setup")]
-    public Bridge[] bridges; 
+    public Bridge[] bridges;
 
     private Vector3 targetPosition;
     private bool isMoving = false;
     private Queue<Vector3> pathPoints = new Queue<Vector3>();
+    private int towerLayer;
 
     void Start()
     {
         if (mainCamera == null)
             mainCamera = Camera.main;
+
+        towerLayer = LayerMask.NameToLayer("Tower");
 
         targetPosition = transform.position;
         Vector3 pos = transform.position;
@@ -58,97 +61,118 @@ public class PlayerClickMovement : MonoBehaviour
                 Vector3 clickPoint = hit.point;
                 clickPoint.y = fixedY;
 
-                // Check if click is in a forbidden zone
-                if (Physics.CheckSphere(clickPoint, 0.1f, forbiddenLayer))
-                {
-                    if (blockedVFXPrefab != null)
-                    {
-                        GameObject blockedVfx = Instantiate(blockedVFXPrefab, clickPoint, Quaternion.identity);
-                        Destroy(blockedVfx, 1f);
-                    }
-                    return; // Don't move at all
-                }
+                // Always rotate to face click
+                Vector3 lookDir = clickPoint - transform.position;
+                lookDir.y = 0;
+                if (lookDir.sqrMagnitude > 0.01f)
+                    transform.rotation = Quaternion.LookRotation(lookDir);
 
-                // Spawn normal click VFX
-                if (clickVFXPrefab != null)
+                //  If clicked directly on a tower, blocked
+                if (hit.collider.gameObject.layer == towerLayer)
                 {
-                    GameObject vfx = Instantiate(clickVFXPrefab, clickPoint, Quaternion.identity);
-                    Destroy(vfx, 1f);
-                }
-
-                // Check if path intersects forbidden zones
-                bool blockedPath = Physics.Linecast(transform.position, clickPoint, forbiddenLayer);
-                if (!blockedPath)
-                {
-                    // Direct path is valid
-                    pathPoints.Clear();
-                    targetPosition = clickPoint;
-                    isMoving = true;
+                    SpawnBlockedVFX(clickPoint);
                     return;
                 }
 
-                // Path is blocked, check for bridges
-                Bridge usableBridge = null;
-                float minDist = Mathf.Infinity;
-                foreach (Bridge b in bridges)
+                //  If clicked in a forbidden zone, blocked
+                if (Physics.CheckSphere(clickPoint, 0.1f, forbiddenLayer))
                 {
-                    Vector3 bridgeEnd = b.GetClosestEnd(clickPoint);
-                    float dist = Vector3.Distance(clickPoint, bridgeEnd);
-                    if (dist < minDist)
-                    {
-                        minDist = dist;
-                        usableBridge = b;
-                    }
+                    SpawnBlockedVFX(clickPoint);
+                    return;
                 }
 
-                if (usableBridge != null)
-                {
-                    // Use bridge waypoints
-                    List<Vector3> orderedWaypoints = usableBridge.GetOrderedWaypoints(transform.position);
+                //  Check if line between player and click is blocked by anything
+                bool blockedByTower = Physics.Linecast(transform.position, clickPoint, 1 << towerLayer);
+                bool blockedByForbidden = Physics.Linecast(transform.position, clickPoint, forbiddenLayer);
 
-                    // Verify the bridge path does not cross forbidden zones
-                    bool bridgeBlocked = false;
-                    Vector3 lastPos = transform.position;
-                    foreach (Vector3 wp in orderedWaypoints)
+                //  If blocked by a tower — no movement, no bridge logic, just blocked VFX
+                if (blockedByTower)
+                {
+                    SpawnBlockedVFX(clickPoint);
+                    return;
+                }
+
+                //  If blocked by forbidden zone — check for bridge
+                if (blockedByForbidden)
+                {
+                    Bridge usableBridge = null;
+                    float minDist = Mathf.Infinity;
+                    foreach (Bridge b in bridges)
                     {
-                        if (Physics.Linecast(lastPos, wp, forbiddenLayer))
+                        Vector3 bridgeEnd = b.GetClosestEnd(clickPoint);
+                        float dist = Vector3.Distance(clickPoint, bridgeEnd);
+                        if (dist < minDist)
                         {
-                            bridgeBlocked = true;
-                            break;
+                            minDist = dist;
+                            usableBridge = b;
                         }
-                        lastPos = wp;
                     }
 
-                    if (bridgeBlocked)
+                    if (usableBridge != null)
                     {
-                        // Bridge path is blocked
-                        if (blockedVFXPrefab != null)
+                        // Build path through bridge
+                        List<Vector3> orderedWaypoints = usableBridge.GetOrderedWaypoints(transform.position);
+
+                        // Check if bridge path crosses a forbidden zone
+                        bool bridgeBlocked = false;
+                        Vector3 lastPos = transform.position;
+                        foreach (Vector3 wp in orderedWaypoints)
                         {
-                            GameObject blockedVfx = Instantiate(blockedVFXPrefab, clickPoint, Quaternion.identity);
-                            Destroy(blockedVfx, 1f);
+                            if (Physics.Linecast(lastPos, wp, forbiddenLayer) || Physics.Linecast(lastPos, wp, 1 << towerLayer))
+                            {
+                                bridgeBlocked = true;
+                                break;
+                            }
+                            lastPos = wp;
                         }
+
+                        if (bridgeBlocked)
+                        {
+                            SpawnBlockedVFX(clickPoint);
+                            return;
+                        }
+
+                        // Valid bridge path
+                        pathPoints.Clear();
+                        foreach (Vector3 wp in orderedWaypoints)
+                            pathPoints.Enqueue(wp);
+
+                        pathPoints.Enqueue(clickPoint);
+                        targetPosition = pathPoints.Dequeue();
+                        isMoving = true;
+                        SpawnClickVFX(clickPoint);
                         return;
                     }
 
-                    // Bridge is safe, enqueue all waypoints
-                    pathPoints.Clear();
-                    foreach (Vector3 wp in orderedWaypoints)
-                        pathPoints.Enqueue(wp);
+                    // No bridge found, blocked
+                    SpawnBlockedVFX(clickPoint);
+                    return;
+                }
 
-                    pathPoints.Enqueue(clickPoint); // final target
-                    targetPosition = pathPoints.Dequeue();
-                    isMoving = true;
-                }
-                else
-                {
-                    // No bridge possible, spawn blocked VFX
-                    if (blockedVFXPrefab != null)
-                    {
-                        GameObject blockedVfx = Instantiate(blockedVFXPrefab, clickPoint, Quaternion.identity);
-                        Destroy(blockedVfx, 1f);
-                    }
-                }
+                //  If clear path — move directly
+                pathPoints.Clear();
+                targetPosition = clickPoint;
+                isMoving = true;
+                SpawnClickVFX(clickPoint);
             }
+        }
+    }
+
+    private void SpawnClickVFX(Vector3 position)
+    {
+        if (clickVFXPrefab != null)
+        {
+            GameObject vfx = Instantiate(clickVFXPrefab, position, Quaternion.identity);
+            Destroy(vfx, 1f);
+        }
+    }
+
+    private void SpawnBlockedVFX(Vector3 position)
+    {
+        if (blockedVFXPrefab != null)
+        {
+            GameObject blockedVfx = Instantiate(blockedVFXPrefab, position, Quaternion.identity);
+            Destroy(blockedVfx, 1f);
         }
     }
 

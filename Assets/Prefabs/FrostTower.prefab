@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6009533413453020750}
   - component: {fileID: 3558956137042530012}
   - component: {fileID: 9020670084161981696}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Flares
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4860,7 +4860,7 @@ GameObject:
   - component: {fileID: 4173249384805518837}
   - component: {fileID: 4361943318055512046}
   - component: {fileID: 4068608933555889242}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Sparks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9700,7 +9700,7 @@ GameObject:
   - component: {fileID: 4351891097900729733}
   - component: {fileID: 2549496259055486981}
   - component: {fileID: 7597273967813304878}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Glow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14662,7 +14662,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 83009653fa7936e439dc4b6dab9f0776, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
