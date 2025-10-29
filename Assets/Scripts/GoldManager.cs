@@ -1,38 +1,50 @@
 using UnityEngine;
 using TMPro;
+using System; // for Action events
 
 public class GoldManager : MonoBehaviour
 {
+    [Header("Gold Settings")]
     public int startingGold = 100;
-    public int currentGold { get; private set; }
+    public TextMeshProUGUI goldText;
 
-    public TextMeshProUGUI goldText; 
+    public int CurrentGold { get; private set; }
+
+    // --- EVENTS ---
+    public static event Action<int> OnGoldChanged; // e.g., for tower buttons to subscribe
+
+    private void Awake()
+    {
+        CurrentGold = startingGold;
+    }
 
     private void Start()
     {
-        currentGold = startingGold;
         UpdateGoldUI();
+        OnGoldChanged?.Invoke(CurrentGold); // let UI know the initial amount
     }
 
     public bool SpendGold(int amount)
     {
-        if (amount > currentGold)
+        if (amount > CurrentGold)
             return false;
 
-        currentGold -= amount;
+        CurrentGold -= amount;
         UpdateGoldUI();
+        OnGoldChanged?.Invoke(CurrentGold); // notify listeners (buttons, UI, etc.)
         return true;
     }
 
     public void AddGold(int amount)
     {
-        currentGold += amount;
+        CurrentGold += amount;
         UpdateGoldUI();
+        OnGoldChanged?.Invoke(CurrentGold);
     }
 
     private void UpdateGoldUI()
     {
         if (goldText != null)
-            goldText.text = $"Gold: {currentGold}";
+            goldText.text = $"Gold: {CurrentGold}";
     }
 }
