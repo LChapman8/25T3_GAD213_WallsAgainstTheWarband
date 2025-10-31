@@ -6,19 +6,24 @@ public class TowerPlacementManager : MonoBehaviour
     public static TowerPlacementManager Instance;
 
     [Header("References")]
-    public LayerMask buildableLayer;        // Layer for valid build zones
-    public LayerMask blockedLayer;          // Layer for towers/obstacles
-    public GameObject blockedVFXPrefab;     // VFX when invalid placement
-    public AudioSource buildAudio;          // Play when a tower is placed
-    public float buildDelay = 2f;           // Time before tower fully builds
+    public LayerMask buildableLayer;
+    public LayerMask blockedLayer;
+    public GameObject blockedVFXPrefab;
+    public AudioSource buildAudio;
+    public float buildDelay = 2f;
+
+    [Header("Placement Settings")]
+    public float placementYOffset = 0.5f;
+    public Vector3 rotationOffset = new Vector3(90f, 0f, 0f);
+
+    [Header("Construction VFX")]
+    public GameObject constructionVFXPrefab;
 
     [Header("Player Gold")]
-    public GoldManager goldManager;         // GoldManager reference
-
-    [Header("Ghost Settings")]
-    public float placementYOffset = 0.1f;   // Small hover offset for ghost tower
+    public GoldManager goldManager;
 
     private GameObject currentGhost;
+    private GameObject constructionVFX;
     private GameObject selectedTowerPrefab;
     private int selectedTowerCost;
     private bool isPlacing = false;
@@ -52,6 +57,7 @@ public class TowerPlacementManager : MonoBehaviour
 
         currentGhost = Instantiate(ghostPrefab);
         currentGhost.layer = LayerMask.NameToLayer("Ignore Raycast");
+        currentGhost.transform.rotation = Quaternion.Euler(rotationOffset);
         isPlacing = true;
     }
 
@@ -62,25 +68,21 @@ public class TowerPlacementManager : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
         {
-            Vector3 pos = hit.point;
-
-            // Adjust Y based on ghost's renderer bounds so it sits on terrain
-            Renderer ghostRenderer = currentGhost.GetComponentInChildren<Renderer>();
-            if (ghostRenderer != null)
-                pos.y += ghostRenderer.bounds.extents.y + placementYOffset;
-
+            Vector3 pos = hit.point + Vector3.up * placementYOffset;
             currentGhost.transform.position = pos;
+            currentGhost.transform.rotation = Quaternion.Euler(rotationOffset);
 
-            bool validPlacement = Physics.CheckSphere(pos, 0.5f, buildableLayer)
-                                  && !Physics.CheckSphere(pos, 0.5f, blockedLayer);
+            bool validPlacement = Physics.CheckSphere(hit.point, 0.5f, buildableLayer)
+                                  && !Physics.CheckSphere(hit.point, 0.5f, blockedLayer);
 
-            // Update ghost color (green = valid, red = invalid)
             Renderer[] rends = currentGhost.GetComponentsInChildren<Renderer>();
             foreach (Renderer r in rends)
             {
                 foreach (Material mat in r.materials)
                 {
-                    mat.color = validPlacement ? new Color(0f, 1f, 0f, 0.3f) : new Color(1f, 0f, 0f, 0.3f);
+                    mat.color = validPlacement
+                        ? new Color(0f, 1f, 0f, 0.3f)
+                        : new Color(1f, 0f, 0f, 0.3f);
                 }
             }
         }
@@ -93,10 +95,10 @@ public class TowerPlacementManager : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                Vector3 pos = hit.point;
+                Vector3 pos = hit.point + Vector3.up * placementYOffset;
 
-                bool validPlacement = Physics.CheckSphere(pos, 0.5f, buildableLayer)
-                                      && !Physics.CheckSphere(pos, 0.5f, blockedLayer);
+                bool validPlacement = Physics.CheckSphere(hit.point, 0.5f, buildableLayer)
+                                      && !Physics.CheckSphere(hit.point, 0.5f, blockedLayer);
 
                 if (!validPlacement)
                 {
@@ -112,11 +114,8 @@ public class TowerPlacementManager : MonoBehaviour
             }
         }
 
-        // Right click cancels building
         if (Input.GetMouseButtonDown(1))
-        {
             CancelPlacement();
-        }
     }
 
     private IEnumerator BuildTower(Vector3 position)
@@ -125,11 +124,25 @@ public class TowerPlacementManager : MonoBehaviour
 
         if (currentGhost != null)
         {
-            Destroy(currentGhost);
-            currentGhost = null;
+            currentGhost.transform.position = position;
+            currentGhost.transform.rotation = Quaternion.Euler(rotationOffset);
+
+            // Store original prefab scale
+            Vector3 originalScale = currentGhost.transform.localScale;
+
+            // Start at half of original
+            currentGhost.transform.localScale = originalScale * 0.5f;
+            SetGhostColor(currentGhost, new Color(1f, 1f, 1f, 0.4f)); // semi-transparent
+
+            // --- Spawn dust VFX ---
+            if (constructionVFXPrefab != null) // you can use your dust prefab here instead
+            {
+                GameObject vfx = Instantiate(constructionVFXPrefab, position, Quaternion.identity);
+                Destroy(vfx, 2f); // auto-cleanup after 2 seconds
+            }
         }
 
-        // Spend gold through GoldManager
+        // Spend gold
         if (goldManager != null)
         {
             bool success = goldManager.SpendGold(selectedTowerCost);
@@ -140,32 +153,59 @@ public class TowerPlacementManager : MonoBehaviour
             }
         }
 
-        // Play build sound
+        // Play build audio
         if (buildAudio != null)
             buildAudio.Play();
 
-        // Simulate build delay
-        yield return new WaitForSeconds(buildDelay);
-
-        // Adjust final tower Y based on its mesh bounds
-        Vector3 finalPos = position;
-        if (selectedTowerPrefab != null)
+        // Scale up over time
+        float elapsed = 0f;
+        Vector3 startScale = currentGhost.transform.localScale;
+        Vector3 targetScale = startScale * 2f; // full size = original prefab scale
+        while (elapsed < buildDelay)
         {
-            Renderer towerRenderer = selectedTowerPrefab.GetComponentInChildren<Renderer>();
-            if (towerRenderer != null)
-                finalPos.y += towerRenderer.bounds.extents.y;
-            Instantiate(selectedTowerPrefab, finalPos, Quaternion.identity);
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / buildDelay);
+            if (currentGhost != null)
+                currentGhost.transform.localScale = Vector3.Lerp(startScale, targetScale, t);
+            yield return null;
         }
+
+        // Instantiate full-size tower
+        Instantiate(selectedTowerPrefab, position, Quaternion.Euler(rotationOffset));
+
+        // Destroy ghost
+        if (currentGhost != null)
+            Destroy(currentGhost);
 
         selectedTowerPrefab = null;
         selectedTowerCost = 0;
     }
 
+
+
+
+    private void SetGhostColor(GameObject ghost, Color color)
+    {
+        Renderer[] rends = ghost.GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in rends)
+        {
+            foreach (Material mat in r.materials)
+            {
+                mat.color = color;
+            }
+        }
+    }
+
     private void CancelPlacement()
     {
         isPlacing = false;
+
         if (currentGhost != null)
             Destroy(currentGhost);
+
+        if (constructionVFX != null)
+            Destroy(constructionVFX);
+
         selectedTowerPrefab = null;
         selectedTowerCost = 0;
     }
