@@ -1,5 +1,6 @@
-using UnityEngine;
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class PlayerClickMovement : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class PlayerClickMovement : MonoBehaviour
     [Header("Move VFX")]
     public GameObject clickVFXPrefab;
     public GameObject blockedVFXPrefab;
-    public LayerMask forbiddenLayer; // For terrain obstacles etc.
+    public LayerMask forbiddenLayer;
 
     [Header("Audio")]
     public AudioSource runAudio;
@@ -22,10 +23,28 @@ public class PlayerClickMovement : MonoBehaviour
     [Header("Bridge Setup")]
     public Bridge[] bridges;
 
+    [Header("Input Cooldown")]
+    [Tooltip("Minimum time (in seconds) between movement clicks.")]
+    public float clickCooldown = 1.5f;
+    private float lastClickTime = -999f;
+
+    [Header("Movement Limits")]
+    [Tooltip("Max distance the player can move from their start position.")]
+    public float maxMoveRadius = 25f;
+    private Vector3 startPosition;
+
+    [Header("Stopping Distance")]
+    [Tooltip("Distance before the final target position to stop.")]
+    public float stopOffset = 0.5f;
+
     private Vector3 targetPosition;
     private bool isMoving = false;
     private Queue<Vector3> pathPoints = new Queue<Vector3>();
     private int towerLayer;
+
+    // Callback support
+    private Action onArriveCallback = null;
+    private bool followingCallbackPath = false;
 
     void Start()
     {
@@ -35,6 +54,8 @@ public class PlayerClickMovement : MonoBehaviour
         towerLayer = LayerMask.NameToLayer("Tower");
 
         targetPosition = transform.position;
+        startPosition = transform.position;
+
         Vector3 pos = transform.position;
         pos.y = fixedY;
         transform.position = pos;
@@ -53,50 +74,60 @@ public class PlayerClickMovement : MonoBehaviour
 
     private void HandleInput()
     {
+        if (Time.time - lastClickTime < clickCooldown)
+            return;
+
         if (Input.GetMouseButtonDown(1))
         {
+            lastClickTime = Time.time;
+
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
                 Vector3 clickPoint = hit.point;
                 clickPoint.y = fixedY;
 
-                // Always rotate to face click
                 Vector3 lookDir = clickPoint - transform.position;
                 lookDir.y = 0;
                 if (lookDir.sqrMagnitude > 0.01f)
                     transform.rotation = Quaternion.LookRotation(lookDir);
 
-                //  If clicked directly on a tower, blocked
-                if (hit.collider.gameObject.layer == towerLayer)
+                if (Vector3.Distance(startPosition, clickPoint) > maxMoveRadius)
+                {
+                    SpawnBlockedVFX(clickPoint);
+                    Debug.Log("Target out of range");
+                    return;
+                }
+
+                if (hit.collider != null && hit.collider.gameObject.layer == towerLayer)
                 {
                     SpawnBlockedVFX(clickPoint);
                     return;
                 }
 
-                //  If clicked in a forbidden zone, blocked
-                if (Physics.CheckSphere(clickPoint, 0.1f, forbiddenLayer))
+                // If clicked directly inside a forbidden zone
+                if (Physics.CheckSphere(clickPoint, 0.1f, forbiddenLayer.value))
                 {
                     SpawnBlockedVFX(clickPoint);
                     return;
                 }
 
-                //  Check if line between player and click is blocked by anything
-                bool blockedByTower = Physics.Linecast(transform.position, clickPoint, 1 << towerLayer);
-                bool blockedByForbidden = Physics.Linecast(transform.position, clickPoint, forbiddenLayer);
+                Vector3 dirToClick = clickPoint - transform.position;
+                float distToClick = dirToClick.magnitude;
+                bool blockedByTower = Physics.Raycast(transform.position + Vector3.up * 0.1f, dirToClick.normalized, distToClick, 1 << towerLayer);
+                bool blockedByForbidden = Physics.Raycast(transform.position + Vector3.up * 0.1f, dirToClick.normalized, distToClick, forbiddenLayer.value);
 
-                //  If blocked by a tower — no movement, no bridge logic, just blocked VFX
                 if (blockedByTower)
                 {
                     SpawnBlockedVFX(clickPoint);
                     return;
                 }
 
-                //  If blocked by forbidden zone — check for bridge
                 if (blockedByForbidden)
                 {
                     Bridge usableBridge = null;
                     float minDist = Mathf.Infinity;
+
                     foreach (Bridge b in bridges)
                     {
                         Vector3 bridgeEnd = b.GetClosestEnd(clickPoint);
@@ -110,15 +141,21 @@ public class PlayerClickMovement : MonoBehaviour
 
                     if (usableBridge != null)
                     {
-                        // Build path through bridge
                         List<Vector3> orderedWaypoints = usableBridge.GetOrderedWaypoints(transform.position);
 
-                        // Check if bridge path crosses a forbidden zone
                         bool bridgeBlocked = false;
                         Vector3 lastPos = transform.position;
                         foreach (Vector3 wp in orderedWaypoints)
                         {
-                            if (Physics.Linecast(lastPos, wp, forbiddenLayer) || Physics.Linecast(lastPos, wp, 1 << towerLayer))
+                            Vector3 segment = wp - lastPos;
+                            if (segment.sqrMagnitude <= 0.0001f)
+                            {
+                                lastPos = wp;
+                                continue;
+                            }
+
+                            if (Physics.Raycast(lastPos + Vector3.up * 0.1f, segment.normalized, segment.magnitude, forbiddenLayer.value) ||
+                                Physics.Raycast(lastPos + Vector3.up * 0.1f, segment.normalized, segment.magnitude, 1 << towerLayer))
                             {
                                 bridgeBlocked = true;
                                 break;
@@ -132,30 +169,43 @@ public class PlayerClickMovement : MonoBehaviour
                             return;
                         }
 
-                        // Valid bridge path
                         pathPoints.Clear();
                         foreach (Vector3 wp in orderedWaypoints)
-                            pathPoints.Enqueue(wp);
+                            pathPoints.Enqueue(AdjustStopPoint(wp));
 
-                        pathPoints.Enqueue(clickPoint);
+                        pathPoints.Enqueue(AdjustStopPoint(clickPoint));
                         targetPosition = pathPoints.Dequeue();
                         isMoving = true;
                         SpawnClickVFX(clickPoint);
                         return;
                     }
 
-                    // No bridge found, blocked
                     SpawnBlockedVFX(clickPoint);
                     return;
                 }
 
-                //  If clear path — move directly
                 pathPoints.Clear();
-                targetPosition = clickPoint;
+                targetPosition = AdjustStopPoint(clickPoint);
                 isMoving = true;
                 SpawnClickVFX(clickPoint);
             }
         }
+    }
+
+    private Vector3 AdjustStopPoint(Vector3 destination)
+    {
+        Vector3 dir = destination - transform.position;
+        dir.y = 0;
+        float distance = dir.magnitude;
+
+        if (distance > stopOffset)
+        {
+            dir.Normalize();
+            destination -= dir * stopOffset;
+        }
+
+        destination.y = fixedY;
+        return destination;
     }
 
     private void SpawnClickVFX(Vector3 position)
@@ -176,6 +226,61 @@ public class PlayerClickMovement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Move to a world point. Optionally provide an onArrive callback which is invoked
+    /// once the player reaches the final stop in the path.
+    /// </summary>
+    public void MoveToPoint(Vector3 targetPoint, Action onArrive = null)
+    {
+        // Clear any existing path and callback
+        pathPoints.Clear();
+        onArriveCallback = onArrive;
+        followingCallbackPath = (onArriveCallback != null);
+
+        // Adjust stopping position so we stop slightly short of the exact point
+        targetPoint = AdjustStopPoint(targetPoint);
+
+        // See if path to adjusted target is blocked by forbidden layer; if so try bridges
+        Vector3 dirToTarget = targetPoint - transform.position;
+        float dist = dirToTarget.magnitude;
+        bool blockedByForbidden = false;
+        if (dist > 0.001f)
+            blockedByForbidden = Physics.Raycast(transform.position + Vector3.up * 0.1f, dirToTarget.normalized, dist, forbiddenLayer.value);
+
+        if (blockedByForbidden)
+        {
+            Bridge usableBridge = null;
+            float minDist = Mathf.Infinity;
+
+            foreach (Bridge b in bridges)
+            {
+                Vector3 bridgeEnd = b.GetClosestEnd(targetPoint);
+                float d = Vector3.Distance(targetPoint, bridgeEnd);
+                if (d < minDist)
+                {
+                    minDist = d;
+                    usableBridge = b;
+                }
+            }
+
+            if (usableBridge != null)
+            {
+                List<Vector3> orderedWaypoints = usableBridge.GetOrderedWaypoints(transform.position);
+                foreach (Vector3 wp in orderedWaypoints)
+                    pathPoints.Enqueue(AdjustStopPoint(wp));
+
+                pathPoints.Enqueue(AdjustStopPoint(targetPoint));
+                targetPosition = pathPoints.Dequeue();
+                isMoving = true;
+                return;
+            }
+        }
+
+        // Direct move
+        targetPosition = AdjustStopPoint(targetPoint);
+        isMoving = true;
+    }
+
     private void HandleMovement()
     {
         if (!isMoving) return;
@@ -189,9 +294,25 @@ public class PlayerClickMovement : MonoBehaviour
             transform.position = targetPosition;
 
             if (pathPoints.Count > 0)
+            {
                 targetPosition = pathPoints.Dequeue();
+            }
             else
+            {
                 isMoving = false;
+
+                // If we were following a path that expects a callback, invoke it
+                if (followingCallbackPath && onArriveCallback != null)
+                {
+                    Action cb = onArriveCallback;
+                    onArriveCallback = null;
+                    followingCallbackPath = false;
+                    cb.Invoke();
+                }
+
+                // Reset cooldown so player can click again immediately after arrival
+                lastClickTime = -999f;
+            }
         }
         else
         {
@@ -223,14 +344,14 @@ public class PlayerClickMovement : MonoBehaviour
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class Bridge
 {
     public Transform[] waypoints;
 
     public Vector3 GetClosestEnd(Vector3 point)
     {
-        if (waypoints.Length == 0) return Vector3.zero;
+        if (waypoints == null || waypoints.Length == 0) return Vector3.zero;
         float distStart = Vector3.Distance(point, waypoints[0].position);
         float distEnd = Vector3.Distance(point, waypoints[waypoints.Length - 1].position);
         return distStart < distEnd ? waypoints[0].position : waypoints[waypoints.Length - 1].position;
@@ -239,7 +360,7 @@ public class Bridge
     public List<Vector3> GetOrderedWaypoints(Vector3 fromPosition)
     {
         List<Vector3> ordered = new List<Vector3>();
-        if (waypoints.Length == 0) return ordered;
+        if (waypoints == null || waypoints.Length == 0) return ordered;
 
         float distStart = Vector3.Distance(fromPosition, waypoints[0].position);
         float distEnd = Vector3.Distance(fromPosition, waypoints[waypoints.Length - 1].position);
