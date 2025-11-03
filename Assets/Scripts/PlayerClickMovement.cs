@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerClickMovement : MonoBehaviour
 {
@@ -42,7 +43,6 @@ public class PlayerClickMovement : MonoBehaviour
     private Queue<Vector3> pathPoints = new Queue<Vector3>();
     private int towerLayer;
 
-    // Callback support
     private Action onArriveCallback = null;
     private bool followingCallbackPath = false;
 
@@ -70,10 +70,34 @@ public class PlayerClickMovement : MonoBehaviour
         HandleMovement();
         HandleAnimator();
         HandleAudio();
+
+        // Left-click handling (for hiding UI)
+        if (Input.GetMouseButtonDown(0))
+        {
+            // Ignore clicks on UI
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                // Only hide menu when clicking something that is NOT a tower
+                if (hit.collider.GetComponent<TowerClickable>() == null)
+                    TowerMenuUI.Instance.Hide();
+            }
+            else
+            {
+                TowerMenuUI.Instance.Hide();
+            }
+        }
     }
 
     private void HandleInput()
     {
+        // Ignore clicks on UI
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            return;
+
         if (Time.time - lastClickTime < clickCooldown)
             return;
 
@@ -84,6 +108,10 @@ public class PlayerClickMovement : MonoBehaviour
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
+                // Ignore tower clicks (those open the UI)
+                if (hit.collider.GetComponent<TowerClickable>() != null)
+                    return;
+
                 Vector3 clickPoint = hit.point;
                 clickPoint.y = fixedY;
 
@@ -92,6 +120,7 @@ public class PlayerClickMovement : MonoBehaviour
                 if (lookDir.sqrMagnitude > 0.01f)
                     transform.rotation = Quaternion.LookRotation(lookDir);
 
+                // Stay within allowed radius
                 if (Vector3.Distance(startPosition, clickPoint) > maxMoveRadius)
                 {
                     SpawnBlockedVFX(clickPoint);
@@ -105,7 +134,7 @@ public class PlayerClickMovement : MonoBehaviour
                     return;
                 }
 
-                // If clicked directly inside a forbidden zone
+                // If clicked directly in forbidden zone
                 if (Physics.CheckSphere(clickPoint, 0.1f, forbiddenLayer.value))
                 {
                     SpawnBlockedVFX(clickPoint);
@@ -123,6 +152,7 @@ public class PlayerClickMovement : MonoBehaviour
                     return;
                 }
 
+                // Handle bridges if forbidden between player and target
                 if (blockedByForbidden)
                 {
                     Bridge usableBridge = null;
@@ -184,6 +214,7 @@ public class PlayerClickMovement : MonoBehaviour
                     return;
                 }
 
+                // Direct move
                 pathPoints.Clear();
                 targetPosition = AdjustStopPoint(clickPoint);
                 isMoving = true;
@@ -226,21 +257,14 @@ public class PlayerClickMovement : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Move to a world point. Optionally provide an onArrive callback which is invoked
-    /// once the player reaches the final stop in the path.
-    /// </summary>
     public void MoveToPoint(Vector3 targetPoint, Action onArrive = null)
     {
-        // Clear any existing path and callback
         pathPoints.Clear();
         onArriveCallback = onArrive;
         followingCallbackPath = (onArriveCallback != null);
 
-        // Adjust stopping position so we stop slightly short of the exact point
         targetPoint = AdjustStopPoint(targetPoint);
 
-        // See if path to adjusted target is blocked by forbidden layer; if so try bridges
         Vector3 dirToTarget = targetPoint - transform.position;
         float dist = dirToTarget.magnitude;
         bool blockedByForbidden = false;
@@ -276,7 +300,6 @@ public class PlayerClickMovement : MonoBehaviour
             }
         }
 
-        // Direct move
         targetPosition = AdjustStopPoint(targetPoint);
         isMoving = true;
     }
@@ -301,7 +324,6 @@ public class PlayerClickMovement : MonoBehaviour
             {
                 isMoving = false;
 
-                // If we were following a path that expects a callback, invoke it
                 if (followingCallbackPath && onArriveCallback != null)
                 {
                     Action cb = onArriveCallback;
@@ -310,7 +332,6 @@ public class PlayerClickMovement : MonoBehaviour
                     cb.Invoke();
                 }
 
-                // Reset cooldown so player can click again immediately after arrival
                 lastClickTime = -999f;
             }
         }
