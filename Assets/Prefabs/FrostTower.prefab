@@ -14683,6 +14683,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 83009653fa7936e439dc4b6dab9f0776, type: 3}
       insertIndex: -1
       addedObject: {fileID: -295223894158788831}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 83009653fa7936e439dc4b6dab9f0776, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3275486947036424279}
   m_SourcePrefab: {fileID: 100100000, guid: 83009653fa7936e439dc4b6dab9f0776, type: 3}
 --- !u!1 &2450871852511886830 stripped
 GameObject:
@@ -14726,8 +14729,28 @@ MonoBehaviour:
   towerName: Frost Tower
   sellValue: 5
   upgradeCost: 10
+--- !u!114 &3275486947036424279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2450871852511886830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23f130cbac688ca4b8ebc98e118208e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderersToHighlight:
+  - {fileID: 4108341169503001659}
+  highlightColor: {r: 1, g: 0, b: 0.0612669, a: 1}
 --- !u!4 &2974889626143631188 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 83009653fa7936e439dc4b6dab9f0776, type: 3}
+  m_PrefabInstance: {fileID: 3369351296425672895}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &4108341169503001659 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 83009653fa7936e439dc4b6dab9f0776, type: 3}
   m_PrefabInstance: {fileID: 3369351296425672895}
   m_PrefabAsset: {fileID: 0}

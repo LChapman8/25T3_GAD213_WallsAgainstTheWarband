@@ -13,7 +13,7 @@ public class TowerClickable : MonoBehaviour
 
     private void Start()
     {
-        goldManager = FindObjectOfType<GoldManager>();
+        goldManager = Object.FindAnyObjectByType<GoldManager>();
     }
 
     private void OnMouseDown()

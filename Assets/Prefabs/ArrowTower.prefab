@@ -82,6 +82,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6124df824c3aa5f41aa0be95be4f40a6, type: 3}
       insertIndex: -1
       addedObject: {fileID: -8912667503629868315}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6124df824c3aa5f41aa0be95be4f40a6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2329800268637073169}
   m_SourcePrefab: {fileID: 100100000, guid: 6124df824c3aa5f41aa0be95be4f40a6, type: 3}
 --- !u!1 &3171018750480638915 stripped
 GameObject:
@@ -125,3 +128,23 @@ MonoBehaviour:
   towerName: Arrow Tower
   sellValue: 5
   upgradeCost: 10
+--- !u!114 &2329800268637073169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3171018750480638915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23f130cbac688ca4b8ebc98e118208e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderersToHighlight:
+  - {fileID: 3963524671918293526}
+  highlightColor: {r: 1, g: 0.015686274, b: 0.057620067, a: 1}
+--- !u!23 &3963524671918293526 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 6124df824c3aa5f41aa0be95be4f40a6, type: 3}
+  m_PrefabInstance: {fileID: 2360116077071785618}
+  m_PrefabAsset: {fileID: 0}

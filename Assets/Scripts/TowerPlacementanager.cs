@@ -32,7 +32,7 @@ public class TowerPlacementManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        player = FindObjectOfType<PlayerClickMovement>();
+        player = Object.FindAnyObjectByType<PlayerClickMovement>();
     }
 
     private void Update()
