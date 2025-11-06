@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class TowerHighlight : MonoBehaviour
 {
-    [Header("Highlight Settings")]
     public Renderer[] renderersToHighlight;
-    public Color highlightColor = Color.yellow;
-    private Color[] originalColors;
-    private bool isHighlighted = false;
+    public Material outlineMaterial;
+
+    private Material[][] originalMaterials;
+    private bool isHighlighted;
 
     void Start()
     {
@@ -17,12 +17,9 @@ public class TowerHighlight : MonoBehaviour
                 renderersToHighlight = new Renderer[] { r };
         }
 
-        originalColors = new Color[renderersToHighlight.Length];
+        originalMaterials = new Material[renderersToHighlight.Length][];
         for (int i = 0; i < renderersToHighlight.Length; i++)
-        {
-            if (renderersToHighlight[i].material.HasProperty("_Color"))
-                originalColors[i] = renderersToHighlight[i].material.color;
-        }
+            originalMaterials[i] = renderersToHighlight[i].materials;
     }
 
     public void SetHighlighted(bool value)
@@ -32,11 +29,19 @@ public class TowerHighlight : MonoBehaviour
 
         for (int i = 0; i < renderersToHighlight.Length; i++)
         {
-            if (renderersToHighlight[i].material.HasProperty("_Color"))
+            if (value)
             {
-                renderersToHighlight[i].material.color = value
-                    ? highlightColor
-                    : originalColors[i];
+                // Add outline material
+                var newMats = new Material[originalMaterials[i].Length + 1];
+                for (int j = 0; j < originalMaterials[i].Length; j++)
+                    newMats[j] = originalMaterials[i][j];
+                newMats[newMats.Length - 1] = outlineMaterial;
+                renderersToHighlight[i].materials = newMats;
+            }
+            else
+            {
+                // Revert
+                renderersToHighlight[i].materials = originalMaterials[i];
             }
         }
     }

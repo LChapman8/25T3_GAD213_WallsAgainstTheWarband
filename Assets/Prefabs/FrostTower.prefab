@@ -14743,7 +14743,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderersToHighlight:
   - {fileID: 4108341169503001659}
-  highlightColor: {r: 1, g: 0, b: 0.0612669, a: 1}
+  outlineMaterial: {fileID: 2100000, guid: 8f25927e36b69574dae5c50000a92de3, type: 2}
 --- !u!4 &2974889626143631188 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 83009653fa7936e439dc4b6dab9f0776, type: 3}

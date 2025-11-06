@@ -150,7 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderersToHighlight:
   - {fileID: 6227901947630118955}
-  highlightColor: {r: 1, g: 0.014555816, b: 0, a: 1}
+  outlineMaterial: {fileID: 2100000, guid: 8f25927e36b69574dae5c50000a92de3, type: 2}
 --- !u!23 &6227901947630118955 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
