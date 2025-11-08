@@ -38,7 +38,7 @@ public class TowerClickable : MonoBehaviour
             return;
         }
 
-        // Example upgrade behavior:
+        
         transform.localScale *= 1.2f;
         isUpgraded = true;
         Debug.Log($"{towerName} upgraded! Cost: {upgradeCost}");

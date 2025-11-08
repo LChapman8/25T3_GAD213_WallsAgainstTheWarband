@@ -34,7 +34,7 @@ public class TowerMenuUI : MonoBehaviour
             panel.SetActive(true);
 
         if (towerNameText != null)
-            towerNameText.text = tower.towerName; // Set by the tower script
+            towerNameText.text = tower.towerName; 
     }
 
     public void Hide()

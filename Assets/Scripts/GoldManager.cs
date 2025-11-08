@@ -11,7 +11,7 @@ public class GoldManager : MonoBehaviour
     public int CurrentGold { get; private set; }
 
     // --- EVENTS ---
-    public static event Action<int> OnGoldChanged; // e.g., for tower buttons to subscribe
+    public static event Action<int> OnGoldChanged; 
 
     private void Awake()
     {

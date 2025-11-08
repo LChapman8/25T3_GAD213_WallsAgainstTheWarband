@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class TowerHighlight : MonoBehaviour
 {
+    /// <summary>
+    /// This script should be fully functional but cannot work out for the life of me why it isnt working in engine, problem for project 3 in my polish stage.
+    /// </summary>
     public Renderer[] renderersToHighlight;
     public Material outlineMaterial;
 
