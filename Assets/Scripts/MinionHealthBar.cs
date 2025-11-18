@@ -3,16 +3,22 @@ using UnityEngine.UI;
 
 public class MinionHealthBar : MonoBehaviour
 {
-    public MinionStats stats;      // The minion this bar tracks
-    public Slider slider;          // The UI slider
+    [Header("References")]
+    public MinionStats stats;           // Assigned when spawned
+    public Slider slider;               // The UI slider with Fill assigned
+
+    [Header("Settings")]
     public float smoothSpeed = 10f;
 
     private Camera cam;
 
-    void Start()
+    void Awake()
     {
         cam = Camera.main;
+    }
 
+    void Start()
+    {
         if (slider != null)
         {
             slider.maxValue = 1f;
@@ -22,21 +28,19 @@ public class MinionHealthBar : MonoBehaviour
 
     void LateUpdate()
     {
-        if (stats == null || slider == null) return;
+        if (stats == null || slider == null)
+            return;
 
-        // Always face the camera
+        // Always face camera
         transform.LookAt(transform.position + cam.transform.forward);
 
-        // Update health percentage
         float targetValue = Mathf.Clamp01(stats.currentHealth / stats.maxHealth);
         slider.value = Mathf.Lerp(slider.value, targetValue, Time.deltaTime * smoothSpeed);
     }
 
-    // Immediately update the UI (useful on damage events)
     public void ForceUpdateUI()
     {
         if (stats == null || slider == null) return;
-
         slider.value = Mathf.Clamp01(stats.currentHealth / stats.maxHealth);
     }
 }
