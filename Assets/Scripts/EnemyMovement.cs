@@ -65,5 +65,18 @@ public class EnemyMovement : MonoBehaviour
     {
         Destroy(gameObject);
     }
+
+    public float CurrentProgressValue()
+    {
+        // Higher value = more progressed along the path
+        if (currentWaypoint >= waypoints.Length) return float.MaxValue;
+
+        Transform target = waypoints[currentWaypoint];
+        float distToNext = Vector3.Distance(transform.position, target.position);
+
+        // Lower distance = more progress, so invert it
+        return currentWaypoint * 1000f - distToNext;
+    }
+
 }
 

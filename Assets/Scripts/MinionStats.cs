@@ -4,6 +4,7 @@ public class MinionStats : MonoBehaviour
 {
     [Header("Base Stats")]
     public float baseHealth = 10f;
+    public float progressDistance; //updated by movement script
 
     [Header("Runtime Stats")]
     public float maxHealth = 10f; //{ get; private set; }
