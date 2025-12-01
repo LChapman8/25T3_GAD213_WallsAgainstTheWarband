@@ -13,7 +13,7 @@ public class TowerAttack : MonoBehaviour
     public Transform firePoint;
 
     [Header("Audio")]
-    public AudioClip shootSound;   // <-- add your bow/crossbow/cannon sound here
+    public AudioClip shootSound;   
 
     private float fireCooldown = 0f;
     private MinionStats currentTarget;
@@ -79,7 +79,7 @@ public class TowerAttack : MonoBehaviour
         ArrowProjectile arrow = proj.GetComponent<ArrowProjectile>();
         arrow.Initialize(target, damage);
 
-        // *** Play shot sound ***
+        // Play shot sound 
         if (shootSound != null)
             PlaySoundAtPosition.PlayClip(shootSound, firePoint.position);
     }
