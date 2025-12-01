@@ -12,6 +12,9 @@ public class TowerAttack : MonoBehaviour
     public GameObject projectilePrefab;
     public Transform firePoint;
 
+    [Header("Audio")]
+    public AudioClip shootSound;   // <-- add your bow/crossbow/cannon sound here
+
     private float fireCooldown = 0f;
     private MinionStats currentTarget;
 
@@ -32,7 +35,6 @@ public class TowerAttack : MonoBehaviour
         }
     }
 
-    // Check if enemy is still valid
     bool IsTargetValid(MinionStats enemy)
     {
         if (enemy == null) return false;
@@ -42,10 +44,10 @@ public class TowerAttack : MonoBehaviour
         return dist <= range;
     }
 
-    // Returns enemy that is most progressed along the waypoint path
     MinionStats GetBestTarget()
     {
-        MinionStats[] allMinions = GameObject.FindObjectsOfType<MinionStats>();
+        MinionStats[] allMinions =
+            Object.FindObjectsByType<MinionStats>(FindObjectsSortMode.None);
 
         MinionStats best = null;
         float bestProgress = -1f;
@@ -55,7 +57,6 @@ public class TowerAttack : MonoBehaviour
             float dist = Vector3.Distance(transform.position, m.transform.position);
             if (dist > range) continue;
 
-            // Use movement script for progression
             EnemyMovement move = m.GetComponent<EnemyMovement>();
             if (move == null) continue;
 
@@ -73,9 +74,14 @@ public class TowerAttack : MonoBehaviour
 
     void FireProjectile(MinionStats target)
     {
+        // Spawn the projectile
         GameObject proj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
         ArrowProjectile arrow = proj.GetComponent<ArrowProjectile>();
         arrow.Initialize(target, damage);
+
+        // *** Play shot sound ***
+        if (shootSound != null)
+            PlaySoundAtPosition.PlayClip(shootSound, firePoint.position);
     }
 
     void OnDrawGizmosSelected()

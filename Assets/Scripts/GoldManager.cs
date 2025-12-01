@@ -1,6 +1,6 @@
 using UnityEngine;
 using TMPro;
-using System; // for Action events
+using System;
 
 public class GoldManager : MonoBehaviour
 {
@@ -8,20 +8,27 @@ public class GoldManager : MonoBehaviour
     public int startingGold = 100;
     public TextMeshProUGUI goldText;
 
+    [Header("Gold UI")]
+    public GameObject goldPopupPrefab; // assign prefab in inspector
+    public Sprite goldIcon;            // assign your gold icon sprite here
+
     public int CurrentGold { get; private set; }
 
+    public static GoldManager Instance; // singleton reference
+
     // --- EVENTS ---
-    public static event Action<int> OnGoldChanged; 
+    public static event Action<int> OnGoldChanged;
 
     private void Awake()
     {
+        Instance = this;
         CurrentGold = startingGold;
     }
 
     private void Start()
     {
         UpdateGoldUI();
-        OnGoldChanged?.Invoke(CurrentGold); // let UI know the initial amount
+        OnGoldChanged?.Invoke(CurrentGold);
     }
 
     public bool SpendGold(int amount)
@@ -31,20 +38,35 @@ public class GoldManager : MonoBehaviour
 
         CurrentGold -= amount;
         UpdateGoldUI();
-        OnGoldChanged?.Invoke(CurrentGold); // notify listeners (buttons, UI, etc.)
+        OnGoldChanged?.Invoke(CurrentGold);
         return true;
     }
 
-    public void AddGold(int amount)
+    public void AddGold(int amount, Vector3? popupPosition = null)
     {
         CurrentGold += amount;
         UpdateGoldUI();
         OnGoldChanged?.Invoke(CurrentGold);
+
+        // Spawn gold popup if position is provided
+        if (popupPosition.HasValue)
+            SpawnGoldPopup(popupPosition.Value, amount);
     }
 
     private void UpdateGoldUI()
     {
         if (goldText != null)
             goldText.text = $"Gold: {CurrentGold}";
+    }
+
+    public void SpawnGoldPopup(Vector3 position, int amount)
+    {
+        if (goldPopupPrefab != null)
+        {
+            GameObject popup = Instantiate(goldPopupPrefab, position, Quaternion.identity);
+            GoldPopup popupScript = popup.GetComponent<GoldPopup>();
+            if (popupScript != null)
+                popupScript.Initialize(amount, goldIcon);
+        }
     }
 }

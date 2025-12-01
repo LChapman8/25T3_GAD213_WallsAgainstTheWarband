@@ -199,9 +199,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   range: 10
   fireRate: 1
-  damage: 10
-  projectilePrefab: {fileID: 0}
+  damage: 30
+  projectilePrefab: {fileID: 4082800218503242923, guid: dc1cfc0237180954f8067ace78530d45, type: 3}
   firePoint: {fileID: 5904091723566365524}
+  shootSound: {fileID: 8300000, guid: f463b918d7d5f1c4ba85ecd1549034da, type: 3}
 --- !u!23 &3963524671918293526 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 6124df824c3aa5f41aa0be95be4f40a6, type: 3}
