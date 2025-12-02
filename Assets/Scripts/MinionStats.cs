@@ -11,7 +11,7 @@ public class MinionStats : MonoBehaviour
     public AudioSource audioSource;
 
     [Header("Gold Drop")]
-    public int goldOnDeath = 5;
+    public int goldOnDeath = 10;
 
     [Header("Runtime Stats")]
     public float maxHealth = 10f;

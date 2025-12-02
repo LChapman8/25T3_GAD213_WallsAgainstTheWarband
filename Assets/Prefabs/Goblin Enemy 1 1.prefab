@@ -716,7 +716,7 @@ MonoBehaviour:
   progressDistance: 0
   deathSound: {fileID: 8300000, guid: cecdeec7e48e61f43935938aaa4e7199, type: 3}
   audioSource: {fileID: 778030960491059757, guid: 9362ac422231d9b48a1c651842d60b8a, type: 3}
-  goldOnDeath: 5
+  goldOnDeath: 10
   maxHealth: 50
   currentHealth: 50
   healthBarPrefab: {fileID: 4249328065466715619}

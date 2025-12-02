@@ -20306,7 +20306,7 @@ MonoBehaviour:
   spawnPoint: {fileID: 714862709}
   waypointsParent: {fileID: 1959815932}
   spawnInterval: 0.5
-  totalEnemies: 50
+  totalEnemies: 20
   terrain: {fileID: 1649294036}
 --- !u!4 &714862709
 Transform:
@@ -22813,7 +22813,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   towerPrefab: {fileID: 3171018750480638915, guid: e9e44bea7f85d4047bc7c0f385c2ade8, type: 3}
   ghostTowerPrefab: {fileID: 9145495693113876436, guid: f3aa8150c2e24d64abbaf4ede1735e51, type: 3}
-  towerCost: 10
+  towerCost: 75
 --- !u!4 &789140654 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 443956, guid: 442cea376be1c49fead43683ab3677dd, type: 3}
@@ -54487,7 +54487,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Click to upgrade your tower, increase damage by 25%
+  m_text: Click to upgrade your tower for 50g, increase damage by 25%
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -59119,7 +59119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5f00527dff3cab40be9d89db3ee8d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingGold: 100
+  startingGold: 250
   goldText: {fileID: 782470233}
   goldPopupPrefab: {fileID: 4966431335639858287, guid: 7483db19e23b8fe4e922c8e7f8fe549c, type: 3}
   goldIcon: {fileID: 21300000, guid: 93b5b28db06f8d2439c780ec3aeb28d2, type: 3}
