@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9187421305468503765
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8587301948537947166}
+  m_Layer: 7
+  m_Name: FiringPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8587301948537947166
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9187421305468503765}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.02862}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5054972890381488964}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &4732269951607796911
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -78,6 +109,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8930909729336847958}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8587301948537947166}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
       insertIndex: -1
@@ -88,6 +122,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
       insertIndex: -1
       addedObject: {fileID: 36825697497272395}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6041006941111741003}
   m_SourcePrefab: {fileID: 100100000, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
 --- !u!4 &5054972890381488964 stripped
 Transform:
@@ -151,6 +188,24 @@ MonoBehaviour:
   renderersToHighlight:
   - {fileID: 6227901947630118955}
   outlineMaterial: {fileID: 2100000, guid: 8f25927e36b69574dae5c50000a92de3, type: 2}
+--- !u!114 &6041006941111741003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5579132706720795134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ee90875c3312194ca6a9dc7aad80ae7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  range: 10
+  fireRate: 0.25
+  damage: 40
+  projectilePrefab: {fileID: 5692636853442251906, guid: b841c1b4ee5b64e41b68af149b6a2986, type: 3}
+  firePoint: {fileID: 8587301948537947166}
+  shootSound: {fileID: 8300000, guid: 68ccf170de26ca24491fbb689888a3b6, type: 3}
 --- !u!23 &6227901947630118955 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}

@@ -34811,7 +34811,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   towerPrefab: {fileID: 5579132706720795134, guid: 31bafa325136d434686b4547a81265f4, type: 3}
   ghostTowerPrefab: {fileID: 2886619526627616647, guid: 827d982383df86641b621c6f3b5bab5c, type: 3}
-  towerCost: 10
+  towerCost: 120
 --- !u!1 &1163798734
 GameObject:
   m_ObjectHideFlags: 0
