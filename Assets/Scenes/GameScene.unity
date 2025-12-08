@@ -14896,7 +14896,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   towerPrefab: {fileID: 2450871852511886830, guid: e414d146c175571498aa131941145746, type: 3}
   ghostTowerPrefab: {fileID: 8935949734787971080, guid: 7d71e753a8c3f0a45af006b719cc4ceb, type: 3}
-  towerCost: 10
+  towerCost: 100
 --- !u!1 &543809058
 GameObject:
   m_ObjectHideFlags: 0
@@ -16925,12 +16925,9 @@ MonoBehaviour:
   totalWaves: 5
   timeBetweenWaves: 5
   startWaveButton: {fileID: 566867683}
-  fadeDuration: 1
-  pulseAmount: 0.5
-  pulseDuration: 2
   audioSource: {fileID: 836180708}
-  waveStartClip: {fileID: 8300000, guid: 6e2dbb5fc9689c348959293dde081ea4, type: 3}
-  midWaveClip: {fileID: 8300000, guid: 31709bf42f651b34798b7bbd6339872d, type: 3}
+  waveStartClip: {fileID: 8300000, guid: 31709bf42f651b34798b7bbd6339872d, type: 3}
+  midWaveClip: {fileID: 8300000, guid: 6e2dbb5fc9689c348959293dde081ea4, type: 3}
 --- !u!4 &599574938
 Transform:
   m_ObjectHideFlags: 0
@@ -20308,6 +20305,7 @@ MonoBehaviour:
   spawnInterval: 0.5
   totalEnemies: 20
   terrain: {fileID: 1649294036}
+  currentRound: 1
 --- !u!4 &714862709
 Transform:
   m_ObjectHideFlags: 0

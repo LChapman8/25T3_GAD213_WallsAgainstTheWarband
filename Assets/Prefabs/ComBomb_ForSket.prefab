@@ -70,14 +70,14 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 589836803d798ec478affec5e68c6687, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8449928659599773411}
+      addedObject: {fileID: 8377039817553415230}
   m_SourcePrefab: {fileID: 100100000, guid: 589836803d798ec478affec5e68c6687, type: 3}
 --- !u!1 &5692636853442251906 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 589836803d798ec478affec5e68c6687, type: 3}
   m_PrefabInstance: {fileID: 4882226211485659603}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8449928659599773411
+--- !u!114 &8377039817553415230
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -86,7 +86,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5692636853442251906}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 480c9b3553e9e1244b69cd6ab6b5f6cd, type: 3}
+  m_Script: {fileID: 11500000, guid: c267bb7d22466714f811a9ee9a33b993, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 12
+  speed: 10
+  explosionRadius: 6
+  explosionVFX: {fileID: 4994997792314849709, guid: 3dd50886582244645be87adb42aa8528, type: 3}
+  explosionSound: {fileID: 8300000, guid: 19da44b84d3e71743a51f92b7e26620a, type: 3}

@@ -683,11 +683,12 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  speed: 5
+  baseSpeed: 3
   rotationOffsetY: 180
   terrain: {fileID: 0}
   rotationSpeed: 2
   stoppingDistance: 0.2
+  iceMaterial: {fileID: 2100000, guid: 73050efd14e7a2f4fbd6c609d40464ab, type: 2}
 --- !u!114 &5253089192892105071
 MonoBehaviour:
   m_ObjectHideFlags: 0

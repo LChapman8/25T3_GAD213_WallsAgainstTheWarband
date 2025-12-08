@@ -8,15 +8,12 @@ public class WaveManager : MonoBehaviour
     public int currentWave = 0;
     public int totalWaves = 5;
     public float timeBetweenWaves = 5f;
-    public Button startWaveButton;         
-    public float fadeDuration = 0.5f;      
-    public float pulseAmount = 0.5f;       
-    public float pulseDuration = 0.3f;     
+    public Button startWaveButton;
 
     [Header("Audio")]
-    public AudioSource audioSource;        
-    public AudioClip waveStartClip;        
-    public AudioClip midWaveClip;         
+    public AudioSource audioSource;
+    public AudioClip waveStartClip;
+    public AudioClip midWaveClip;
 
     public delegate void WaveEvent(int waveNumber);
     public event WaveEvent OnWaveStarted;
@@ -48,105 +45,57 @@ public class WaveManager : MonoBehaviour
     {
         isSpawning = true;
 
-        // Fade out Start Wave button
+        // Fade out the Start Wave button
         if (startWaveButton != null)
             yield return StartCoroutine(FadeButton(0f));
 
-        // Play first announcer clip
+        // Play wave start horn
         if (audioSource != null && waveStartClip != null)
-        {
             audioSource.PlayOneShot(waveStartClip);
 
-            // Play mid-wave clip halfway through first clip
-            if (midWaveClip != null)
-                StartCoroutine(PlayMidWaveClipAfterDelay(waveStartClip.length / 2f));
-        }
+        // Update spawner for this wave
+        spawner.currentRound = currentWave;
+        spawner.totalEnemies = 10 + (10 * currentWave); // scale enemies per wave
 
         OnWaveStarted?.Invoke(currentWave);
-
-        spawner.totalEnemies += 2 * currentWave;
 
         // Spawn enemies
         yield return StartCoroutine(spawner.SpawnEnemiesRoutine());
 
+        // Wait until all enemies are dead
         while (spawner.enemiesAlive > 0)
-        {
             yield return null;
-        }
 
         OnWaveEnded?.Invoke(currentWave);
 
+        // Wait before enabling button
         yield return new WaitForSeconds(timeBetweenWaves);
 
         if (currentWave < totalWaves && startWaveButton != null)
             yield return StartCoroutine(FadeButton(1f));
 
         isSpawning = false;
-
-        if (currentWave >= totalWaves)
-            Debug.Log("All waves complete!");
-    }
-
-    private IEnumerator PlayMidWaveClipAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (audioSource != null && midWaveClip != null)
-            audioSource.PlayOneShot(midWaveClip);
-
-        // Pulse the button if it exists
-        if (buttonCanvasGroup != null)
-            yield return StartCoroutine(PulseButton());
     }
 
     private IEnumerator FadeButton(float targetAlpha)
     {
-        if (buttonCanvasGroup == null)
-            yield break;
+        if (buttonCanvasGroup == null) yield break;
 
         float startAlpha = buttonCanvasGroup.alpha;
         float elapsed = 0f;
 
-        buttonCanvasGroup.interactable = targetAlpha > 0f;
-        buttonCanvasGroup.blocksRaycasts = targetAlpha > 0f;
+        buttonCanvasGroup.interactable = targetAlpha > 0;
+        buttonCanvasGroup.blocksRaycasts = targetAlpha > 0;
 
-        while (elapsed < fadeDuration)
+        while (elapsed < 0.5f)
         {
             elapsed += Time.deltaTime;
-            buttonCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / fadeDuration);
+            buttonCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / 0.5f);
             yield return null;
         }
 
         buttonCanvasGroup.alpha = targetAlpha;
-        buttonCanvasGroup.interactable = targetAlpha > 0f;
-        buttonCanvasGroup.blocksRaycasts = targetAlpha > 0f;
-    }
-
-    private IEnumerator PulseButton()
-    {
-        if (buttonCanvasGroup == null)
-            yield break;
-
-        float originalAlpha = buttonCanvasGroup.alpha;
-        float targetAlpha = Mathf.Clamp01(originalAlpha - pulseAmount);
-        float elapsed = 0f;
-
-        // Fade down
-        while (elapsed < pulseDuration)
-        {
-            elapsed += Time.deltaTime;
-            buttonCanvasGroup.alpha = Mathf.Lerp(originalAlpha, targetAlpha, elapsed / pulseDuration);
-            yield return null;
-        }
-
-        // Fade back up
-        elapsed = 0f;
-        while (elapsed < pulseDuration)
-        {
-            elapsed += Time.deltaTime;
-            buttonCanvasGroup.alpha = Mathf.Lerp(targetAlpha, originalAlpha, elapsed / pulseDuration);
-            yield return null;
-        }
-
-        buttonCanvasGroup.alpha = originalAlpha;
+        buttonCanvasGroup.interactable = targetAlpha > 0;
+        buttonCanvasGroup.blocksRaycasts = targetAlpha > 0;
     }
 }

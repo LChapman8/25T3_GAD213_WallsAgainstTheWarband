@@ -3,8 +3,8 @@ using UnityEngine;
 public class MinionStats : MonoBehaviour
 {
     [Header("Base Stats")]
-    public float baseHealth = 10f;
-    public float progressDistance;
+    public float baseHealth = 50f;
+    public float progressDistance; // needed for tower targeting
 
     [Header("Audio")]
     public AudioClip deathSound;
@@ -14,8 +14,8 @@ public class MinionStats : MonoBehaviour
     public int goldOnDeath = 10;
 
     [Header("Runtime Stats")]
-    public float maxHealth = 10f;
-    public float currentHealth = 10f;
+    public float maxHealth;
+    public float currentHealth;
 
     [Header("UI")]
     public GameObject healthBarPrefab;
@@ -23,6 +23,7 @@ public class MinionStats : MonoBehaviour
 
     public System.Action OnDeath;
 
+    // Initialise for the given wave
     public void Initialise(int roundNumber)
     {
         maxHealth = CalculateScaledHealth(roundNumber);
@@ -37,15 +38,22 @@ public class MinionStats : MonoBehaviour
             );
 
             healthBarUI = ui.GetComponent<MinionHealthBar>();
-            healthBarUI.stats = this;
-            ui.transform.SetParent(transform, worldPositionStays: true);
-            healthBarUI.ForceUpdateUI();
+            if (healthBarUI != null)
+            {
+                healthBarUI.stats = this;
+                ui.transform.SetParent(transform, worldPositionStays: true);
+                healthBarUI.ForceUpdateUI();
+            }
+            else
+            {
+                Debug.LogWarning("Health bar prefab missing MinionHealthBar component!");
+            }
         }
     }
 
     float CalculateScaledHealth(int round)
     {
-        float multiplier = 1f + ((round - 1) * 0.25f);
+        float multiplier = 1f + ((round - 1) * 0.70f); // +25% per round
         return baseHealth * multiplier;
     }
 
@@ -63,25 +71,17 @@ public class MinionStats : MonoBehaviour
 
     void Die()
     {
-        // Play death sound at the minion position
         if (deathSound != null)
-        {
             PlaySoundAtPosition.PlayClip(deathSound, transform.position);
-        }
 
-        // Give player gold + popup
         if (GoldManager.Instance != null)
             GoldManager.Instance.AddGold(goldOnDeath, transform.position + Vector3.up * 1.5f);
 
         OnDeath?.Invoke();
 
-        // Destroy health bar
         if (healthBarUI != null)
             Destroy(healthBarUI.gameObject);
 
-        // Minion dies instantly
         Destroy(gameObject);
     }
-
-
 }

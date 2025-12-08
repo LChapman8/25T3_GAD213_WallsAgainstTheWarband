@@ -11,16 +11,21 @@ public class EnemySpawner : MonoBehaviour
     public Terrain terrain;
 
     public int enemiesAlive { get; private set; } = 0;
+    public int currentRound = 1; // IMPORTANT: Wave number for scaling health
 
     public IEnumerator SpawnEnemiesRoutine()
     {
         Transform[] waypoints = GetWaypoints();
-
         enemiesAlive = totalEnemies;
 
         for (int i = 0; i < totalEnemies; i++)
         {
             GameObject enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
+
+            // Initialize stats with round scaling
+            MinionStats stats = enemy.GetComponent<MinionStats>();
+            if (stats != null)
+                stats.Initialise(currentRound);
 
             EnemyMovement movement = enemy.GetComponent<EnemyMovement>();
             if (movement != null)
@@ -29,19 +34,15 @@ public class EnemySpawner : MonoBehaviour
                 movement.terrain = terrain;
             }
 
-            // Ensure the notifier exists and initialize it
             EnemyDeathNotifier notifier = enemy.GetComponent<EnemyDeathNotifier>();
             if (notifier == null)
-            {
                 notifier = enemy.AddComponent<EnemyDeathNotifier>();
-            }
             notifier.Initialize(this);
 
             yield return new WaitForSeconds(spawnInterval);
         }
     }
 
-    // Called by EnemyDeathNotifier when an enemy is destroyed
     public void OnEnemyDied()
     {
         enemiesAlive--;
@@ -52,9 +53,7 @@ public class EnemySpawner : MonoBehaviour
     {
         Transform[] points = new Transform[waypointsParent.childCount];
         for (int i = 0; i < points.Length; i++)
-        {
             points[i] = waypointsParent.GetChild(i);
-        }
         return points;
     }
 }
