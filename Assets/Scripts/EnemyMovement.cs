@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    [Header("Movement")]
     public Transform[] waypoints;
     public float baseSpeed = 3f;
     private float currentSpeed;
@@ -17,7 +16,6 @@ public class EnemyMovement : MonoBehaviour
     [Header("Ice Slow")]
     public Material iceMaterial;
     private Material[] originalMaterials;
-
     private Renderer[] renderers;
     private bool isSlowed = false;
     private float slowTimer = 0f;
@@ -48,8 +46,6 @@ public class EnemyMovement : MonoBehaviour
         direction.y = 0;
 
         float distance = direction.magnitude;
-
-        // Update progressDistance for targeting
         progressDistance = currentWaypoint * 1000f - distance;
 
         if (distance > stoppingDistance)
@@ -61,22 +57,28 @@ public class EnemyMovement : MonoBehaviour
             currentWaypoint++;
             if (currentWaypoint >= waypoints.Length)
             {
-                Destroy(gameObject);
+                // Check for boss
+                BossStats boss = GetComponent<BossStats>();
+                if (boss != null)
+                {
+                    boss.ReachBase();
+                }
+                else
+                {
+                    // Normal minion
+                    BaseTriggerDamage baseTrigger = FindObjectOfType<BaseTriggerDamage>();
+                    if (baseTrigger != null)
+                        baseTrigger.OnTriggerEnter(GetComponent<Collider>());
+                    Destroy(gameObject);
+                }
                 return;
             }
         }
 
         if (direction != Vector3.zero)
         {
-            Quaternion targetRot =
-                Quaternion.LookRotation(direction) *
-                Quaternion.Euler(0f, rotationOffsetY, 0f);
-
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRot,
-                rotationSpeed * Time.deltaTime
-            );
+            Quaternion targetRot = Quaternion.LookRotation(direction) * Quaternion.Euler(0f, rotationOffsetY, 0f);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
         }
 
         if (terrain != null)
@@ -124,11 +126,6 @@ public class EnemyMovement : MonoBehaviour
 
     public float CurrentProgressValue()
     {
-        if (currentWaypoint >= waypoints.Length)
-            return float.MaxValue;
-
-        Transform target = waypoints[currentWaypoint];
-        float distToNext = Vector3.Distance(transform.position, target.position);
-        return currentWaypoint * 1000f - distToNext;
+        return progressDistance;
     }
 }

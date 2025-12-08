@@ -1,92 +1,74 @@
 using UnityEngine;
-using System.Collections.Generic;
+using System.Linq;
 
 public class TowerAttack : MonoBehaviour
 {
-    [Header("Tower Stats")]
     public float range = 10f;
     public float fireRate = 1f;
     public int damage = 10;
 
-    [Header("Projectile")]
     public GameObject projectilePrefab;
     public Transform firePoint;
+    public AudioClip shootSound;
 
-    [Header("Audio")]
-    public AudioClip shootSound;   
-
-    private float fireCooldown = 0f;
-    private MinionStats currentTarget;
+    private float cooldown;
+    private IEnemy currentTarget;
 
     void Update()
     {
-        fireCooldown -= Time.deltaTime;
+        cooldown -= Time.deltaTime;
 
-        // If no target or target left range/died, find new one
         if (currentTarget == null || !IsTargetValid(currentTarget))
-        {
             currentTarget = GetBestTarget();
-        }
 
-        if (currentTarget != null && fireCooldown <= 0f)
+        if (currentTarget != null && cooldown <= 0f)
         {
             FireProjectile(currentTarget);
-            fireCooldown = 1f / fireRate;
+            cooldown = 1f / fireRate;
         }
     }
 
-    bool IsTargetValid(MinionStats enemy)
+    bool IsTargetValid(IEnemy enemy)
     {
-        if (enemy == null) return false;
-        if (enemy.currentHealth <= 0) return false;
+        if (enemy == null || enemy.CurrentHealth <= 0)
+            return false;
 
-        float dist = Vector3.Distance(transform.position, enemy.transform.position);
-        return dist <= range;
+        return Vector3.Distance(transform.position, enemy.Transform.position) <= range;
     }
 
-    MinionStats GetBestTarget()
+    IEnemy GetBestTarget()
     {
-        MinionStats[] allMinions =
-            Object.FindObjectsByType<MinionStats>(FindObjectsSortMode.None);
-
-        MinionStats best = null;
+        IEnemy[] allEnemies = Object.FindObjectsOfType<MonoBehaviour>().OfType<IEnemy>().ToArray();
+        IEnemy best = null;
         float bestProgress = -1f;
 
-        foreach (var m in allMinions)
+        foreach (var e in allEnemies)
         {
-            float dist = Vector3.Distance(transform.position, m.transform.position);
+            float dist = Vector3.Distance(transform.position, e.Transform.position);
             if (dist > range) continue;
 
-            EnemyMovement move = m.GetComponent<EnemyMovement>();
-            if (move == null) continue;
-
-            float progress = move.CurrentProgressValue();
-
-            if (progress > bestProgress)
+            if (e.Progress > bestProgress)
             {
-                bestProgress = progress;
-                best = m;
+                bestProgress = e.Progress;
+                best = e;
             }
         }
 
         return best;
     }
 
-    void FireProjectile(MinionStats target)
+    void FireProjectile(IEnemy target)
     {
-        // Spawn the projectile
         GameObject proj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
-        ArrowProjectile arrow = proj.GetComponent<ArrowProjectile>();
-        arrow.Initialize(target, damage);
 
-        // Play shot sound 
+        if (projectilePrefab.GetComponent<ArrowProjectile>())
+            proj.GetComponent<ArrowProjectile>().Initialize(target, damage);
+        else if (projectilePrefab.GetComponent<IceProjectile>())
+            proj.GetComponent<IceProjectile>().Initialize(target, damage);
+        else if (projectilePrefab.GetComponent<CannonProjectile>())
+            proj.GetComponent<CannonProjectile>().Initialize(target, damage);
+
         if (shootSound != null)
             PlaySoundAtPosition.PlayClip(shootSound, firePoint.position);
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, range);
     }
 }

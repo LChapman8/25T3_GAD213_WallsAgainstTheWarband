@@ -1,15 +1,14 @@
 using UnityEngine;
 using System.Linq;
-using System.Collections.Generic;
 
 public class TowerTargeting : MonoBehaviour
 {
     [Header("Targeting Settings")]
-    public float range = 6f;               // Attack radius
+    public float range = 6f;
     public LayerMask enemyLayer;
 
     [Header("Runtime")]
-    public MinionStats currentTarget;
+    public IEnemy currentTarget;
 
     void Update()
     {
@@ -20,25 +19,18 @@ public class TowerTargeting : MonoBehaviour
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, range, enemyLayer);
 
-        if (hits.Length == 0)
-        {
-            currentTarget = null;
-            return;
-        }
-
-        // pick the enemy with the highest progressDistance
-        MinionStats best = null;
+        IEnemy best = null;
         float bestProgress = -1f;
 
         foreach (var h in hits)
         {
-            MinionStats ms = h.GetComponent<MinionStats>();
-            if (ms != null && ms.currentHealth > 0)
+            IEnemy enemy = h.GetComponent<MonoBehaviour>() as IEnemy;
+            if (enemy != null && enemy.CurrentHealth > 0)
             {
-                if (ms.progressDistance > bestProgress)
+                if (enemy.Progress > bestProgress)
                 {
-                    bestProgress = ms.progressDistance;
-                    best = ms;
+                    bestProgress = enemy.Progress;
+                    best = enemy;
                 }
             }
         }

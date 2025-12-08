@@ -2,20 +2,15 @@ using UnityEngine;
 
 public class CannonProjectile : MonoBehaviour
 {
-    [Header("Projectile Stats")]
-    public float speed = 6f;           // slower than arrow
+    public float speed = 6f;
     public float explosionRadius = 2.5f;
-
-    [Header("VFX")]
     public GameObject explosionVFX;
-
-    [Header("Audio")]
     public AudioClip explosionSound;
 
-    private MinionStats target;
+    private IEnemy target;
     private int damage;
 
-    public void Initialize(MinionStats target, int damage)
+    public void Initialize(IEnemy target, int damage)
     {
         this.target = target;
         this.damage = damage;
@@ -29,43 +24,31 @@ public class CannonProjectile : MonoBehaviour
             return;
         }
 
-        Vector3 dir = (target.transform.position - transform.position).normalized;
+        Vector3 dir = (target.Transform.position - transform.position).normalized;
         transform.position += dir * speed * Time.deltaTime;
 
-        if (Vector3.Distance(transform.position, target.transform.position) < 0.4f)
+        if (Vector3.Distance(transform.position, target.Transform.position) < 0.4f)
             Explode();
     }
 
     void Explode()
     {
-        // Explosion VFX
         if (explosionVFX != null)
         {
             GameObject vfx = Instantiate(explosionVFX, transform.position, Quaternion.identity);
             Destroy(vfx, 2f);
         }
 
-        // Explosion sound
         if (explosionSound != null)
             PlaySoundAtPosition.PlayClip(explosionSound, transform.position);
 
-        // AOE damage
         Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
-        foreach (Collider hit in hits)
+        foreach (var hit in hits)
         {
-            MinionStats minion = hit.GetComponent<MinionStats>();
-            if (minion != null && minion.currentHealth > 0)
-            {
-                minion.TakeDamage(damage);
-            }
+            IEnemy enemy = hit.GetComponent<MonoBehaviour>() as IEnemy;
+            enemy?.TakeDamage(damage);
         }
 
         Destroy(gameObject);
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, explosionRadius);
     }
 }

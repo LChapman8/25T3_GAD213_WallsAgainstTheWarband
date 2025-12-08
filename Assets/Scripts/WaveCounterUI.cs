@@ -3,8 +3,8 @@ using TMPro;
 
 public class WaveCounterUI : MonoBehaviour
 {
-    public WaveManager waveManager; 
-    public TextMeshProUGUI waveText; 
+    public WaveManager waveManager;
+    public TextMeshProUGUI waveText;
 
     private void OnEnable()
     {
@@ -21,6 +21,11 @@ public class WaveCounterUI : MonoBehaviour
     private void UpdateWaveUI(int waveNumber)
     {
         if (waveText != null)
-            waveText.text = $"Wave: {waveNumber}/{waveManager.totalWaves}";
+        {
+            if (waveNumber < 0)
+                waveText.text = "Wave: Boss Round";
+            else
+                waveText.text = $"Wave: {waveNumber}/{waveManager.totalWaves}";
+        }
     }
 }

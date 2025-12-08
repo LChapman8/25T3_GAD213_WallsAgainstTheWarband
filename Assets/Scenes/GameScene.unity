@@ -16927,7 +16927,6 @@ MonoBehaviour:
   startWaveButton: {fileID: 566867683}
   audioSource: {fileID: 836180708}
   waveStartClip: {fileID: 8300000, guid: 31709bf42f651b34798b7bbd6339872d, type: 3}
-  midWaveClip: {fileID: 8300000, guid: 6e2dbb5fc9689c348959293dde081ea4, type: 3}
 --- !u!4 &599574938
 Transform:
   m_ObjectHideFlags: 0
@@ -20300,6 +20299,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 7614129151485291899, guid: 9ddc2974c0c8fcb4d9f91f17221cb507, type: 3}
+  bossPrefab: {fileID: 5067527796030522317, guid: 57be9d3f8fb5347499831c94b56273ef, type: 3}
   spawnPoint: {fileID: 714862709}
   waypointsParent: {fileID: 1959815932}
   spawnInterval: 0.5

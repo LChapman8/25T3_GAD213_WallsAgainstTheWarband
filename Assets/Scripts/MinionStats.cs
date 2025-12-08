@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class MinionStats : MonoBehaviour
+public class MinionStats : MonoBehaviour, IEnemy
 {
     [Header("Base Stats")]
     public float baseHealth = 50f;
-    public float progressDistance; // needed for tower targeting
+    public float progressDistance; // for tower targeting
 
     [Header("Audio")]
     public AudioClip deathSound;
@@ -23,7 +23,6 @@ public class MinionStats : MonoBehaviour
 
     public System.Action OnDeath;
 
-    // Initialise for the given wave
     public void Initialise(int roundNumber)
     {
         maxHealth = CalculateScaledHealth(roundNumber);
@@ -44,16 +43,12 @@ public class MinionStats : MonoBehaviour
                 ui.transform.SetParent(transform, worldPositionStays: true);
                 healthBarUI.ForceUpdateUI();
             }
-            else
-            {
-                Debug.LogWarning("Health bar prefab missing MinionHealthBar component!");
-            }
         }
     }
 
     float CalculateScaledHealth(int round)
     {
-        float multiplier = 1f + ((round - 1) * 0.70f); // +25% per round
+        float multiplier = 1f + ((round - 1) * 0.7f);
         return baseHealth * multiplier;
     }
 
@@ -62,11 +57,9 @@ public class MinionStats : MonoBehaviour
         currentHealth -= dmg;
         if (currentHealth < 0) currentHealth = 0;
 
-        if (healthBarUI != null)
-            healthBarUI.ForceUpdateUI();
+        healthBarUI?.ForceUpdateUI();
 
-        if (currentHealth <= 0)
-            Die();
+        if (currentHealth <= 0) Die();
     }
 
     void Die()
@@ -78,10 +71,12 @@ public class MinionStats : MonoBehaviour
             GoldManager.Instance.AddGold(goldOnDeath, transform.position + Vector3.up * 1.5f);
 
         OnDeath?.Invoke();
-
-        if (healthBarUI != null)
-            Destroy(healthBarUI.gameObject);
-
+        if (healthBarUI != null) Destroy(healthBarUI.gameObject);
         Destroy(gameObject);
     }
+
+    // IEnemy implementation
+    public float CurrentHealth => currentHealth;
+    public float Progress => progressDistance;
+    public Transform Transform => transform;
 }

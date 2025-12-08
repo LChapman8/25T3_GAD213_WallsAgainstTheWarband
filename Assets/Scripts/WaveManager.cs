@@ -13,13 +13,12 @@ public class WaveManager : MonoBehaviour
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip waveStartClip;
-    public AudioClip midWaveClip;
 
     public delegate void WaveEvent(int waveNumber);
     public event WaveEvent OnWaveStarted;
-    public event WaveEvent OnWaveEnded;
 
     private bool isSpawning = false;
+    private bool bossWaveStarted = false;
     private CanvasGroup buttonCanvasGroup;
 
     private void Awake()
@@ -34,68 +33,78 @@ public class WaveManager : MonoBehaviour
 
     public void StartNextWave()
     {
-        if (isSpawning || currentWave >= totalWaves)
-            return;
+        if (isSpawning) return;
 
         currentWave++;
-        StartCoroutine(WaveRoutine());
+
+        if (currentWave <= totalWaves)
+            StartCoroutine(WaveRoutine());
+        else if (!bossWaveStarted)
+            StartCoroutine(BossWaveRoutine());
     }
 
     private IEnumerator WaveRoutine()
     {
         isSpawning = true;
 
-        // Fade out the Start Wave button
-        if (startWaveButton != null)
-            yield return StartCoroutine(FadeButton(0f));
+        FadeOutButton();
+        audioSource?.PlayOneShot(waveStartClip);
 
-        // Play wave start horn
-        if (audioSource != null && waveStartClip != null)
-            audioSource.PlayOneShot(waveStartClip);
-
-        // Update spawner for this wave
         spawner.currentRound = currentWave;
-        spawner.totalEnemies = 10 + (10 * currentWave); // scale enemies per wave
+        spawner.totalEnemies = 10 + (10 * currentWave);
 
         OnWaveStarted?.Invoke(currentWave);
 
-        // Spawn enemies
         yield return StartCoroutine(spawner.SpawnEnemiesRoutine());
 
-        // Wait until all enemies are dead
         while (spawner.enemiesAlive > 0)
             yield return null;
 
-        OnWaveEnded?.Invoke(currentWave);
-
-        // Wait before enabling button
         yield return new WaitForSeconds(timeBetweenWaves);
 
-        if (currentWave < totalWaves && startWaveButton != null)
-            yield return StartCoroutine(FadeButton(1f));
+        if (currentWave < totalWaves)
+            FadeInButton();
+        else
+            StartCoroutine(BossWaveRoutine());
 
         isSpawning = false;
     }
 
-    private IEnumerator FadeButton(float targetAlpha)
+    private IEnumerator BossWaveRoutine()
     {
-        if (buttonCanvasGroup == null) yield break;
+        bossWaveStarted = true;
+        isSpawning = true;
 
-        float startAlpha = buttonCanvasGroup.alpha;
-        float elapsed = 0f;
+        if (startWaveButton != null)
+            startWaveButton.gameObject.SetActive(false);
 
-        buttonCanvasGroup.interactable = targetAlpha > 0;
-        buttonCanvasGroup.blocksRaycasts = targetAlpha > 0;
+        audioSource?.PlayOneShot(waveStartClip);
 
-        while (elapsed < 0.5f)
-        {
-            elapsed += Time.deltaTime;
-            buttonCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / 0.5f);
+        // Inform UI that this is a boss round
+        OnWaveStarted?.Invoke(-1); // -1 = Boss Round
+
+        yield return StartCoroutine(spawner.SpawnBossRoutine());
+
+        while (spawner.enemiesAlive > 0)
             yield return null;
-        }
 
-        buttonCanvasGroup.alpha = targetAlpha;
-        buttonCanvasGroup.interactable = targetAlpha > 0;
-        buttonCanvasGroup.blocksRaycasts = targetAlpha > 0;
+        Debug.Log("BOSS DEFEATED – YOU WIN");
+        isSpawning = false;
+    }
+
+    void FadeOutButton()
+    {
+        if (buttonCanvasGroup == null) return;
+        buttonCanvasGroup.alpha = 0f;
+        buttonCanvasGroup.interactable = false;
+        buttonCanvasGroup.blocksRaycasts = false;
+    }
+
+    void FadeInButton()
+    {
+        if (buttonCanvasGroup == null) return;
+        buttonCanvasGroup.alpha = 1f;
+        buttonCanvasGroup.interactable = true;
+        buttonCanvasGroup.blocksRaycasts = true;
     }
 }

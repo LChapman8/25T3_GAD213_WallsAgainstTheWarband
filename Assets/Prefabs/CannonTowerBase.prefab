@@ -124,7 +124,7 @@ PrefabInstance:
       addedObject: {fileID: 36825697497272395}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3234394464002735179}
+      addedObject: {fileID: 2598238825458334146}
   m_SourcePrefab: {fileID: 100100000, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
 --- !u!4 &5054972890381488964 stripped
 Transform:
@@ -189,7 +189,7 @@ MonoBehaviour:
   renderersToHighlight:
   - {fileID: 6227901947630118955}
   outlineMaterial: {fileID: 2100000, guid: 8f25927e36b69574dae5c50000a92de3, type: 2}
---- !u!114 &3234394464002735179
+--- !u!114 &2598238825458334146
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -198,16 +198,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 5579132706720795134}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6536ac333df83534e8b8043f8103c53e, type: 3}
+  m_Script: {fileID: 11500000, guid: 7ee90875c3312194ca6a9dc7aad80ae7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 10
+  range: 20
   fireRate: 0.25
   damage: 40
   projectilePrefab: {fileID: 5692636853442251906, guid: b841c1b4ee5b64e41b68af149b6a2986, type: 3}
   firePoint: {fileID: 8587301948537947166}
   shootSound: {fileID: 8300000, guid: 68ccf170de26ca24491fbb689888a3b6, type: 3}
-  currentTarget: {fileID: 0}
 --- !u!23 &6227901947630118955 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}

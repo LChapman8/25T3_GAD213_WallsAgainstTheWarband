@@ -4,6 +4,7 @@ using System.Collections;
 public class EnemySpawner : MonoBehaviour
 {
     public GameObject enemyPrefab;
+    public GameObject bossPrefab;
     public Transform spawnPoint;
     public Transform waypointsParent;
     public float spawnInterval = 2f;
@@ -11,7 +12,7 @@ public class EnemySpawner : MonoBehaviour
     public Terrain terrain;
 
     public int enemiesAlive { get; private set; } = 0;
-    public int currentRound = 1; // IMPORTANT: Wave number for scaling health
+    public int currentRound = 1;
 
     public IEnumerator SpawnEnemiesRoutine()
     {
@@ -22,7 +23,6 @@ public class EnemySpawner : MonoBehaviour
         {
             GameObject enemy = Instantiate(enemyPrefab, spawnPoint.position, Quaternion.identity);
 
-            // Initialize stats with round scaling
             MinionStats stats = enemy.GetComponent<MinionStats>();
             if (stats != null)
                 stats.Initialise(currentRound);
@@ -43,10 +43,28 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    public IEnumerator SpawnBossRoutine()
+    {
+        Transform[] waypoints = GetWaypoints();
+
+        GameObject boss = Instantiate(bossPrefab, spawnPoint.position, Quaternion.identity);
+
+        EnemyMovement movement = boss.GetComponent<EnemyMovement>();
+        if (movement != null)
+        {
+            movement.waypoints = waypoints;
+            movement.terrain = terrain;
+        }
+
+        enemiesAlive = 1;
+        yield break;
+    }
+
     public void OnEnemyDied()
     {
         enemiesAlive--;
-        if (enemiesAlive < 0) enemiesAlive = 0;
+        if (enemiesAlive < 0)
+            enemiesAlive = 0;
     }
 
     private Transform[] GetWaypoints()

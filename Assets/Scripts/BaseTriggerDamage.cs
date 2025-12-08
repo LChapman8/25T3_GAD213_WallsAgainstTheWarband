@@ -14,7 +14,7 @@ public class BaseTriggerDamage : MonoBehaviour
         baseHealth = GetComponent<BaseHealth>();
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void OnTriggerEnter(Collider other)
     {
         // only detect minions
         MinionStats minion = other.GetComponent<MinionStats>();

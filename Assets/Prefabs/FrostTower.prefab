@@ -14722,7 +14722,7 @@ PrefabInstance:
       addedObject: {fileID: 3275486947036424279}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 83009653fa7936e439dc4b6dab9f0776, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8323091890685404364}
+      addedObject: {fileID: 4726815755423592185}
   m_SourcePrefab: {fileID: 100100000, guid: 83009653fa7936e439dc4b6dab9f0776, type: 3}
 --- !u!1 &2450871852511886830 stripped
 GameObject:
@@ -14766,6 +14766,7 @@ MonoBehaviour:
   towerName: Frost Tower
   sellValue: 50
   upgradeCost: 50
+  damageIncreasePercent: 0.25
 --- !u!114 &3275486947036424279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14781,7 +14782,7 @@ MonoBehaviour:
   renderersToHighlight:
   - {fileID: 4108341169503001659}
   outlineMaterial: {fileID: 2100000, guid: 8f25927e36b69574dae5c50000a92de3, type: 2}
---- !u!114 &8323091890685404364
+--- !u!114 &4726815755423592185
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -14790,12 +14791,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2450871852511886830}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bcbbf11686c342d40938be367de4ae6d, type: 3}
+  m_Script: {fileID: 11500000, guid: 7ee90875c3312194ca6a9dc7aad80ae7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 25
-  fireRate: 0.7
-  iceProjectilePrefab: {fileID: 1803803220274175783, guid: f6af489dec116bb48807e1f852868d3b, type: 3}
+  range: 35
+  fireRate: 0.75
+  damage: 10
+  projectilePrefab: {fileID: 1803803220274175783, guid: f6af489dec116bb48807e1f852868d3b, type: 3}
   firePoint: {fileID: 1778391892613421520}
   shootSound: {fileID: 8300000, guid: 53e000f160608ad42afb2de77a022e8e, type: 3}
 --- !u!4 &2974889626143631188 stripped

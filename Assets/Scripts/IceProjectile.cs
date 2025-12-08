@@ -3,15 +3,13 @@ using UnityEngine;
 public class IceProjectile : MonoBehaviour
 {
     public float speed = 8f;
-
-    [Header("Slow")]
     public float slowMultiplier = 0.5f;
     public float slowDuration = 2f;
 
-    private MinionStats target;
+    private IEnemy target;
     private int damage;
 
-    public void Initialize(MinionStats target, int damage)
+    public void Initialize(IEnemy target, int damage)
     {
         this.target = target;
         this.damage = damage;
@@ -25,16 +23,15 @@ public class IceProjectile : MonoBehaviour
             return;
         }
 
-        Vector3 dir = (target.transform.position - transform.position).normalized;
+        Vector3 dir = (target.Transform.position - transform.position).normalized;
         transform.position += dir * speed * Time.deltaTime;
 
-        if (Vector3.Distance(transform.position, target.transform.position) < 0.3f)
+        if (Vector3.Distance(transform.position, target.Transform.position) < 0.3f)
         {
             target.TakeDamage(damage);
 
-            EnemyMovement move = target.GetComponent<EnemyMovement>();
-            if (move != null)
-                move.ApplySlow(slowMultiplier, slowDuration);
+            EnemyMovement move = (target as MonoBehaviour)?.GetComponent<EnemyMovement>();
+            move?.ApplySlow(slowMultiplier, slowDuration);
 
             Destroy(gameObject);
         }
