@@ -68,15 +68,28 @@ public class PlayerClickMovement : MonoBehaviour
         HandleAnimator();
         HandleAudio();
 
-        // Hide tower UI on left click
+        // LEFT CLICK logic
         if (Input.GetMouseButtonDown(0))
         {
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
                 return;
 
+            // Check if clicking a tower
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                if (hit.collider.GetComponentInParent<TowerClickable>() != null)
+                {
+                    // Let the tower handle showing UI
+                    return;
+                }
+            }
+
+            // Otherwise, hide UI
             TowerMenuUI.Instance.Hide();
         }
     }
+
 
     private void HandleInput()
     {
