@@ -67,7 +67,7 @@ public class EnemySpawner : MonoBehaviour
             enemiesAlive = 0;
     }
 
-    private Transform[] GetWaypoints()
+    public Transform[] GetWaypoints()
     {
         Transform[] points = new Transform[waypointsParent.childCount];
         for (int i = 0; i < points.Length; i++)

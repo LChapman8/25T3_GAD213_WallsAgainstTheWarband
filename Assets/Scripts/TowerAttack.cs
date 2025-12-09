@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Linq;
 
 public class TowerAttack : MonoBehaviour
 {
@@ -19,7 +18,7 @@ public class TowerAttack : MonoBehaviour
         cooldown -= Time.deltaTime;
 
         if (currentTarget == null || !IsTargetValid(currentTarget))
-            currentTarget = GetBestTarget();
+            currentTarget = FindBestTarget();
 
         if (currentTarget != null && cooldown <= 0f)
         {
@@ -36,21 +35,26 @@ public class TowerAttack : MonoBehaviour
         return Vector3.Distance(transform.position, enemy.Transform.position) <= range;
     }
 
-    IEnemy GetBestTarget()
+    IEnemy FindBestTarget()
     {
-        IEnemy[] allEnemies = Object.FindObjectsOfType<MonoBehaviour>().OfType<IEnemy>().ToArray();
         IEnemy best = null;
-        float bestProgress = -1f;
+        float bestProgress = float.MinValue;
 
-        foreach (var e in allEnemies)
+        MonoBehaviour[] all =
+            Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+
+        foreach (var mb in all)
         {
-            float dist = Vector3.Distance(transform.position, e.Transform.position);
-            if (dist > range) continue;
-
-            if (e.Progress > bestProgress)
+            if (mb is IEnemy enemy)
             {
-                bestProgress = e.Progress;
-                best = e;
+                float dist = Vector3.Distance(transform.position, enemy.Transform.position);
+                if (dist > range) continue;
+
+                if (enemy.Progress > bestProgress)
+                {
+                    bestProgress = enemy.Progress;
+                    best = enemy;
+                }
             }
         }
 
@@ -59,14 +63,15 @@ public class TowerAttack : MonoBehaviour
 
     void FireProjectile(IEnemy target)
     {
-        GameObject proj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+        GameObject proj =
+            Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
 
-        if (projectilePrefab.GetComponent<ArrowProjectile>())
-            proj.GetComponent<ArrowProjectile>().Initialize(target, damage);
-        else if (projectilePrefab.GetComponent<IceProjectile>())
-            proj.GetComponent<IceProjectile>().Initialize(target, damage);
-        else if (projectilePrefab.GetComponent<CannonProjectile>())
-            proj.GetComponent<CannonProjectile>().Initialize(target, damage);
+        if (proj.TryGetComponent(out ArrowProjectile arrow))
+            arrow.Initialize(target, damage);
+        else if (proj.TryGetComponent(out IceProjectile ice))
+            ice.Initialize(target, damage);
+        else if (proj.TryGetComponent(out CannonProjectile cannon))
+            cannon.Initialize(target, damage);
 
         if (shootSound != null)
             PlaySoundAtPosition.PlayClip(shootSound, firePoint.position);

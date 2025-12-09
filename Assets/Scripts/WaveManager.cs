@@ -10,6 +10,9 @@ public class WaveManager : MonoBehaviour
     public float timeBetweenWaves = 5f;
     public Button startWaveButton;
 
+    [Header("Rewards")]
+    public int goldPerWave = 100;
+
     [Header("Audio")]
     public AudioSource audioSource;
     public AudioClip waveStartClip;
@@ -57,8 +60,13 @@ public class WaveManager : MonoBehaviour
 
         yield return StartCoroutine(spawner.SpawnEnemiesRoutine());
 
+        // wait until wave is fully cleared
         while (spawner.enemiesAlive > 0)
             yield return null;
+
+        //  END OF WAVE GOLD REWARD
+        if (GoldManager.Instance != null)
+            GoldManager.Instance.AddGold(goldPerWave);
 
         yield return new WaitForSeconds(timeBetweenWaves);
 

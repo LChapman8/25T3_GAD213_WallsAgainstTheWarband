@@ -48,12 +48,6 @@ public class TowerClickable : MonoBehaviour
         // Apply damage upgrade for any tower type
         bool upgraded = false;
 
-        IceTowerAttack ice = GetComponent<IceTowerAttack>();
-        if (ice != null)
-        {
-            ice.damage = Mathf.CeilToInt(ice.damage * (1f + damageIncreasePercent));
-            upgraded = true;
-        }
 
         TowerAttack arrow = GetComponent<TowerAttack>();
         if (arrow != null)
@@ -61,13 +55,7 @@ public class TowerClickable : MonoBehaviour
             arrow.damage = Mathf.CeilToInt(arrow.damage * (1f + damageIncreasePercent));
             upgraded = true;
         }
-
-        CannonTowerAttack cannon = GetComponent<CannonTowerAttack>();
-        if (cannon != null)
-        {
-            cannon.damage = Mathf.CeilToInt(cannon.damage * (1f + damageIncreasePercent));
-            upgraded = true;
-        }
+       
 
         if (upgraded)
         {

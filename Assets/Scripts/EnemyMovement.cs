@@ -38,7 +38,13 @@ public class EnemyMovement : MonoBehaviour
     void Update()
     {
         HandleSlow();
+        MoveAlongPath();
+        UpdateProgress();
+        StickToTerrain();
+    }
 
+    void MoveAlongPath()
+    {
         if (waypoints.Length == 0) return;
 
         Transform target = waypoints[currentWaypoint];
@@ -46,7 +52,6 @@ public class EnemyMovement : MonoBehaviour
         direction.y = 0;
 
         float distance = direction.magnitude;
-        progressDistance = currentWaypoint * 1000f - distance;
 
         if (distance > stoppingDistance)
         {
@@ -57,37 +62,51 @@ public class EnemyMovement : MonoBehaviour
             currentWaypoint++;
             if (currentWaypoint >= waypoints.Length)
             {
-                // Check for boss
-                BossStats boss = GetComponent<BossStats>();
-                if (boss != null)
-                {
-                    boss.ReachBase();
-                }
-                else
-                {
-                    // Normal minion
-                    BaseTriggerDamage baseTrigger = FindObjectOfType<BaseTriggerDamage>();
-                    if (baseTrigger != null)
-                        baseTrigger.OnTriggerEnter(GetComponent<Collider>());
-                    Destroy(gameObject);
-                }
+                HandleReachedEnd();
                 return;
             }
         }
 
         if (direction != Vector3.zero)
         {
-            Quaternion targetRot = Quaternion.LookRotation(direction) * Quaternion.Euler(0f, rotationOffsetY, 0f);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
+            Quaternion targetRot = Quaternion.LookRotation(direction) *
+                                   Quaternion.Euler(0f, rotationOffsetY, 0f);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation, targetRot, rotationSpeed * Time.deltaTime);
         }
+    }
 
-        if (terrain != null)
+    void UpdateProgress()
+    {
+        if (waypoints.Length == 0) return;
+        Transform target = waypoints[Mathf.Min(currentWaypoint, waypoints.Length - 1)];
+        float remaining = Vector3.Distance(transform.position, target.position);
+        progressDistance = (currentWaypoint * 1000f) - remaining;
+    }
+
+    void HandleReachedEnd()
+    {
+        BossStats boss = GetComponent<BossStats>();
+        if (boss != null)
         {
-            float terrainHeight = terrain.SampleHeight(transform.position) + terrain.GetPosition().y;
-            Vector3 pos = transform.position;
-            pos.y = terrainHeight;
-            transform.position = pos;
+            boss.ReachBase();
         }
+        else
+        {
+            BaseTriggerDamage baseTrigger = Object.FindFirstObjectByType<BaseTriggerDamage>();
+            if (baseTrigger != null)
+                baseTrigger.OnTriggerEnter(GetComponent<Collider>());
+            Destroy(gameObject);
+        }
+    }
+
+    void StickToTerrain()
+    {
+        if (terrain == null) return;
+        float h = terrain.SampleHeight(transform.position) + terrain.GetPosition().y;
+        Vector3 p = transform.position;
+        p.y = h;
+        transform.position = p;
     }
 
     void HandleSlow()
@@ -110,7 +129,6 @@ public class EnemyMovement : MonoBehaviour
     void ApplyIceMaterial()
     {
         if (iceMaterial == null) return;
-
         foreach (var r in renderers)
             r.material = iceMaterial;
     }
@@ -119,13 +137,9 @@ public class EnemyMovement : MonoBehaviour
     {
         isSlowed = false;
         currentSpeed = baseSpeed;
-
         for (int i = 0; i < renderers.Length; i++)
             renderers[i].material = originalMaterials[i];
     }
 
-    public float CurrentProgressValue()
-    {
-        return progressDistance;
-    }
+    public float Progress => progressDistance;
 }

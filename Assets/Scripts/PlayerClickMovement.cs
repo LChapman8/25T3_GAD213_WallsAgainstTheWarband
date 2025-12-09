@@ -16,7 +16,7 @@ public class PlayerClickMovement : MonoBehaviour
     [Header("Move VFX")]
     public GameObject clickVFXPrefab;
     public GameObject blockedVFXPrefab;
-    public LayerMask forbiddenLayer;
+    public LayerMask forbiddenLayer; // still blocks forbidden areas
 
     [Header("Audio")]
     public AudioSource runAudio;
@@ -41,7 +41,6 @@ public class PlayerClickMovement : MonoBehaviour
     private Vector3 targetPosition;
     private bool isMoving = false;
     private Queue<Vector3> pathPoints = new Queue<Vector3>();
-    private int towerLayer;
 
     private Action onArriveCallback = null;
     private bool followingCallbackPath = false;
@@ -50,8 +49,6 @@ public class PlayerClickMovement : MonoBehaviour
     {
         if (mainCamera == null)
             mainCamera = Camera.main;
-
-        towerLayer = LayerMask.NameToLayer("Tower");
 
         targetPosition = transform.position;
         startPosition = transform.position;
@@ -71,30 +68,18 @@ public class PlayerClickMovement : MonoBehaviour
         HandleAnimator();
         HandleAudio();
 
-        // Left-click handling (for hiding UI)
+        // Hide tower UI on left click
         if (Input.GetMouseButtonDown(0))
         {
-            // Ignore clicks on UI
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
                 return;
 
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
-            {
-                // Only hide menu when clicking something that is NOT a tower
-                if (hit.collider.GetComponent<TowerClickable>() == null)
-                    TowerMenuUI.Instance.Hide();
-            }
-            else
-            {
-                TowerMenuUI.Instance.Hide();
-            }
+            TowerMenuUI.Instance.Hide();
         }
     }
 
     private void HandleInput()
     {
-        // Ignore clicks on UI
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
 
@@ -108,10 +93,6 @@ public class PlayerClickMovement : MonoBehaviour
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                // Ignore tower clicks (those open the UI)
-                if (hit.collider.GetComponent<TowerClickable>() != null)
-                    return;
-
                 Vector3 clickPoint = hit.point;
                 clickPoint.y = fixedY;
 
@@ -128,93 +109,13 @@ public class PlayerClickMovement : MonoBehaviour
                     return;
                 }
 
-                if (hit.collider != null && hit.collider.gameObject.layer == towerLayer)
-                {
-                    SpawnBlockedVFX(clickPoint);
-                    return;
-                }
-
-                // If clicked directly in forbidden zone
+                // Check forbidden zones only (ignore towers completely)
                 if (Physics.CheckSphere(clickPoint, 0.1f, forbiddenLayer.value))
                 {
                     SpawnBlockedVFX(clickPoint);
                     return;
                 }
 
-                Vector3 dirToClick = clickPoint - transform.position;
-                float distToClick = dirToClick.magnitude;
-                bool blockedByTower = Physics.Raycast(transform.position + Vector3.up * 0.1f, dirToClick.normalized, distToClick, 1 << towerLayer);
-                bool blockedByForbidden = Physics.Raycast(transform.position + Vector3.up * 0.1f, dirToClick.normalized, distToClick, forbiddenLayer.value);
-
-                if (blockedByTower)
-                {
-                    SpawnBlockedVFX(clickPoint);
-                    return;
-                }
-
-                // Handle bridges if forbidden between player and target
-                if (blockedByForbidden)
-                {
-                    Bridge usableBridge = null;
-                    float minDist = Mathf.Infinity;
-
-                    foreach (Bridge b in bridges)
-                    {
-                        Vector3 bridgeEnd = b.GetClosestEnd(clickPoint);
-                        float dist = Vector3.Distance(clickPoint, bridgeEnd);
-                        if (dist < minDist)
-                        {
-                            minDist = dist;
-                            usableBridge = b;
-                        }
-                    }
-
-                    if (usableBridge != null)
-                    {
-                        List<Vector3> orderedWaypoints = usableBridge.GetOrderedWaypoints(transform.position);
-
-                        bool bridgeBlocked = false;
-                        Vector3 lastPos = transform.position;
-                        foreach (Vector3 wp in orderedWaypoints)
-                        {
-                            Vector3 segment = wp - lastPos;
-                            if (segment.sqrMagnitude <= 0.0001f)
-                            {
-                                lastPos = wp;
-                                continue;
-                            }
-
-                            if (Physics.Raycast(lastPos + Vector3.up * 0.1f, segment.normalized, segment.magnitude, forbiddenLayer.value) ||
-                                Physics.Raycast(lastPos + Vector3.up * 0.1f, segment.normalized, segment.magnitude, 1 << towerLayer))
-                            {
-                                bridgeBlocked = true;
-                                break;
-                            }
-                            lastPos = wp;
-                        }
-
-                        if (bridgeBlocked)
-                        {
-                            SpawnBlockedVFX(clickPoint);
-                            return;
-                        }
-
-                        pathPoints.Clear();
-                        foreach (Vector3 wp in orderedWaypoints)
-                            pathPoints.Enqueue(AdjustStopPoint(wp));
-
-                        pathPoints.Enqueue(AdjustStopPoint(clickPoint));
-                        targetPosition = pathPoints.Dequeue();
-                        isMoving = true;
-                        SpawnClickVFX(clickPoint);
-                        return;
-                    }
-
-                    SpawnBlockedVFX(clickPoint);
-                    return;
-                }
-
-                // Direct move
                 pathPoints.Clear();
                 targetPosition = AdjustStopPoint(clickPoint);
                 isMoving = true;
@@ -264,43 +165,7 @@ public class PlayerClickMovement : MonoBehaviour
         followingCallbackPath = (onArriveCallback != null);
 
         targetPoint = AdjustStopPoint(targetPoint);
-
-        Vector3 dirToTarget = targetPoint - transform.position;
-        float dist = dirToTarget.magnitude;
-        bool blockedByForbidden = false;
-        if (dist > 0.001f)
-            blockedByForbidden = Physics.Raycast(transform.position + Vector3.up * 0.1f, dirToTarget.normalized, dist, forbiddenLayer.value);
-
-        if (blockedByForbidden)
-        {
-            Bridge usableBridge = null;
-            float minDist = Mathf.Infinity;
-
-            foreach (Bridge b in bridges)
-            {
-                Vector3 bridgeEnd = b.GetClosestEnd(targetPoint);
-                float d = Vector3.Distance(targetPoint, bridgeEnd);
-                if (d < minDist)
-                {
-                    minDist = d;
-                    usableBridge = b;
-                }
-            }
-
-            if (usableBridge != null)
-            {
-                List<Vector3> orderedWaypoints = usableBridge.GetOrderedWaypoints(transform.position);
-                foreach (Vector3 wp in orderedWaypoints)
-                    pathPoints.Enqueue(AdjustStopPoint(wp));
-
-                pathPoints.Enqueue(AdjustStopPoint(targetPoint));
-                targetPosition = pathPoints.Dequeue();
-                isMoving = true;
-                return;
-            }
-        }
-
-        targetPosition = AdjustStopPoint(targetPoint);
+        targetPosition = targetPoint;
         isMoving = true;
     }
 

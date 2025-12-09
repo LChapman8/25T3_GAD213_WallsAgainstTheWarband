@@ -9,35 +9,43 @@ public class CannonProjectile : MonoBehaviour
 
     private IEnemy target;
     private int damage;
+    private Vector3 destination;
+    private bool detached;
 
     public void Initialize(IEnemy target, int damage)
     {
         this.target = target;
         this.damage = damage;
+        destination = target.Transform.position;
     }
 
     void Update()
     {
-        if (target == null)
+        if (!detached && target != null && target.CurrentHealth > 0)
         {
-            Explode();
-            return;
+            destination = target.Transform.position;
+        }
+        else
+        {
+            detached = true;
         }
 
-        Vector3 dir = (target.Transform.position - transform.position).normalized;
-        transform.position += dir * speed * Time.deltaTime;
+        Move();
 
-        if (Vector3.Distance(transform.position, target.Transform.position) < 0.4f)
+        if (Vector3.Distance(transform.position, destination) < 0.4f)
             Explode();
+    }
+
+    void Move()
+    {
+        Vector3 dir = (destination - transform.position).normalized;
+        transform.position += dir * speed * Time.deltaTime;
     }
 
     void Explode()
     {
         if (explosionVFX != null)
-        {
-            GameObject vfx = Instantiate(explosionVFX, transform.position, Quaternion.identity);
-            Destroy(vfx, 2f);
-        }
+            Destroy(Instantiate(explosionVFX, transform.position, Quaternion.identity), 2f);
 
         if (explosionSound != null)
             PlaySoundAtPosition.PlayClip(explosionSound, transform.position);
@@ -45,8 +53,15 @@ public class CannonProjectile : MonoBehaviour
         Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
         foreach (var hit in hits)
         {
-            IEnemy enemy = hit.GetComponent<MonoBehaviour>() as IEnemy;
-            enemy?.TakeDamage(damage);
+            MonoBehaviour[] comps = hit.GetComponents<MonoBehaviour>();
+            foreach (var c in comps)
+            {
+                if (c is IEnemy enemy)
+                {
+                    enemy.TakeDamage(damage);
+                    break;
+                }
+            }
         }
 
         Destroy(gameObject);

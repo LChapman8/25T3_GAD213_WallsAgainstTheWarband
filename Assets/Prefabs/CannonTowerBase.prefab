@@ -124,7 +124,7 @@ PrefabInstance:
       addedObject: {fileID: 36825697497272395}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2598238825458334146}
+      addedObject: {fileID: 4757480975699961803}
   m_SourcePrefab: {fileID: 100100000, guid: 7cbf8e5074356454d8b4504ef87813ca, type: 3}
 --- !u!4 &5054972890381488964 stripped
 Transform:
@@ -149,8 +149,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   towerName: Cannon Tower
-  sellValue: 5
-  upgradeCost: 10
+  sellValue: 60
+  upgradeCost: 60
   damageIncreasePercent: 0.25
 --- !u!64 &5364925632188067215
 MeshCollider:
@@ -189,7 +189,7 @@ MonoBehaviour:
   renderersToHighlight:
   - {fileID: 6227901947630118955}
   outlineMaterial: {fileID: 2100000, guid: 8f25927e36b69574dae5c50000a92de3, type: 2}
---- !u!114 &2598238825458334146
+--- !u!114 &4757480975699961803
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -201,7 +201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ee90875c3312194ca6a9dc7aad80ae7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 20
+  range: 15
   fireRate: 0.25
   damage: 40
   projectilePrefab: {fileID: 5692636853442251906, guid: b841c1b4ee5b64e41b68af149b6a2986, type: 3}

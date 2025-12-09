@@ -1,9 +1,13 @@
 using UnityEngine;
+using System;
 
-public class BossStats : MonoBehaviour, IEnemy
+public class BossStats : MonoBehaviour, IEnemy, IHealth
 {
+    [Header("Health")]
     public float maxHealth = 5000f;
     public float currentHealth;
+    public GameObject healthBarPrefab;
+    private WorldSpaceHealthBar healthBarUI;
 
     [Header("Base Damage")]
     public int damageToBase = 50;
@@ -11,9 +15,9 @@ public class BossStats : MonoBehaviour, IEnemy
     [Header("Audio")]
     public AudioClip deathSound;
 
-    [HideInInspector] public float progressDistance = 0f;
-
     private EnemyMovement movement;
+
+    public static event Action OnBossDefeated;
 
     void Awake()
     {
@@ -21,10 +25,35 @@ public class BossStats : MonoBehaviour, IEnemy
         movement = GetComponent<EnemyMovement>();
     }
 
+    void Start()
+    {
+        if (healthBarPrefab != null)
+        {
+            GameObject ui = Instantiate(
+                healthBarPrefab,
+                transform.position + Vector3.up * 3f,
+                Quaternion.identity
+            );
+
+            healthBarUI = ui.GetComponent<WorldSpaceHealthBar>();
+            if (healthBarUI != null)
+            {
+                healthBarUI.healthSource = this;
+                ui.transform.SetParent(transform, worldPositionStays: true);
+                healthBarUI.ForceUpdateUI();
+            }
+        }
+    }
+
     public void TakeDamage(float amount)
     {
         currentHealth -= amount;
-        if (currentHealth <= 0) Die();
+        if (currentHealth < 0) currentHealth = 0;
+
+        healthBarUI?.ForceUpdateUI();
+
+        if (currentHealth <= 0)
+            Die();
     }
 
     void Die()
@@ -32,30 +61,31 @@ public class BossStats : MonoBehaviour, IEnemy
         if (deathSound != null)
             PlaySoundAtPosition.PlayClip(deathSound, transform.position);
 
+        // Only trigger normal victory if endless mode is NOT active
+        EndlessModeManager endless = UnityEngine.Object.FindFirstObjectByType<EndlessModeManager>();
+        if (endless == null || !endless.endlessActive)
+            OnBossDefeated?.Invoke();
+
         Destroy(gameObject);
-        Debug.Log("BOSS DEFEATED – YOU WIN");
+        Debug.Log("BOSS DEFEATED");
     }
 
     public void ReachBase()
     {
-        BaseHealth baseHealth = FindObjectOfType<BaseHealth>();
-        ScreenShake shake = FindObjectOfType<ScreenShake>();
+        BaseHealth baseHealth = UnityEngine.Object.FindFirstObjectByType<BaseHealth>();
+        ScreenShake shake = UnityEngine.Object.FindFirstObjectByType<ScreenShake>();
 
         if (baseHealth != null)
             baseHealth.TakeDamage(damageToBase);
 
         shake?.Shake();
 
-        AudioSource audioSource = FindObjectOfType<AudioSource>();
-        if (audioSource != null && deathSound != null)
-            audioSource.PlayOneShot(deathSound);
-
         Destroy(gameObject);
         Debug.Log("BOSS REACHED BASE – GAME OVER");
     }
 
-    // ---- IEnemy Implementation ----
     public float CurrentHealth => currentHealth;
-    public float Progress => progressDistance;
+    public float MaxHealth => maxHealth;
+    public float Progress => movement != null ? movement.Progress : float.MinValue;
     public Transform Transform => transform;
 }

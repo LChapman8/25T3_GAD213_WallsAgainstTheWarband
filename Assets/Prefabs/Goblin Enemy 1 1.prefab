@@ -315,7 +315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 231788d63b104df4b9a351587557ae01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats: {fileID: -7657328480330890862}
+  healthSource: {fileID: -7657328480330890862}
   slider: {fileID: 1086754312005909405}
   smoothSpeed: 10
 --- !u!1 &8979688816354579516
@@ -549,13 +549,13 @@ PrefabInstance:
       addedObject: {fileID: 6154804242877692416}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e4c88fe2e81511d4dae9da620550ecf9, type: 3}
       insertIndex: -1
+      addedObject: {fileID: -7657328480330890862}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e4c88fe2e81511d4dae9da620550ecf9, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 685984668100938857}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e4c88fe2e81511d4dae9da620550ecf9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5253089192892105071}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e4c88fe2e81511d4dae9da620550ecf9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: -7657328480330890862}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: e4c88fe2e81511d4dae9da620550ecf9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2494658361006936239}
@@ -625,6 +625,26 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &-7657328480330890862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7614129151485291899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63e5f1fa3c77c564d884dffad536d68c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseHealth: 50
+  progressDistance: 0
+  deathSound: {fileID: 8300000, guid: cecdeec7e48e61f43935938aaa4e7199, type: 3}
+  audioSource: {fileID: 778030960491059757, guid: 9362ac422231d9b48a1c651842d60b8a, type: 3}
+  goldOnDeath: 5
+  maxHealth: 50
+  currentHealth: 50
+  healthBarPrefab: {fileID: 4249328065466715619}
 --- !u!114 &685984668100938857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -689,6 +709,7 @@ MonoBehaviour:
   rotationSpeed: 2
   stoppingDistance: 0.2
   iceMaterial: {fileID: 2100000, guid: 73050efd14e7a2f4fbd6c609d40464ab, type: 2}
+  progressDistance: 0
 --- !u!114 &5253089192892105071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -701,26 +722,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1b0d0a27b92de94b9f8a3c8e35a1af0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-7657328480330890862
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7614129151485291899}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 63e5f1fa3c77c564d884dffad536d68c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseHealth: 50
-  progressDistance: 0
-  deathSound: {fileID: 8300000, guid: cecdeec7e48e61f43935938aaa4e7199, type: 3}
-  audioSource: {fileID: 778030960491059757, guid: 9362ac422231d9b48a1c651842d60b8a, type: 3}
-  goldOnDeath: 10
-  maxHealth: 50
-  currentHealth: 50
-  healthBarPrefab: {fileID: 4249328065466715619}
 --- !u!65 &2494658361006936239
 BoxCollider:
   m_ObjectHideFlags: 0

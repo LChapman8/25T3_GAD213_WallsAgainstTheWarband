@@ -1,10 +1,9 @@
 using UnityEngine;
 
-public class MinionStats : MonoBehaviour, IEnemy
+public class MinionStats : MonoBehaviour, IEnemy, IHealth
 {
     [Header("Base Stats")]
     public float baseHealth = 50f;
-    public float progressDistance; // for tower targeting
 
     [Header("Audio")]
     public AudioClip deathSound;
@@ -19,9 +18,16 @@ public class MinionStats : MonoBehaviour, IEnemy
 
     [Header("UI")]
     public GameObject healthBarPrefab;
-    private MinionHealthBar healthBarUI;
+    private WorldSpaceHealthBar healthBarUI;
 
     public System.Action OnDeath;
+
+    private EnemyMovement movement;
+
+    void Awake()
+    {
+        movement = GetComponent<EnemyMovement>();
+    }
 
     public void Initialise(int roundNumber)
     {
@@ -36,11 +42,11 @@ public class MinionStats : MonoBehaviour, IEnemy
                 Quaternion.identity
             );
 
-            healthBarUI = ui.GetComponent<MinionHealthBar>();
+            healthBarUI = ui.GetComponent<WorldSpaceHealthBar>();
             if (healthBarUI != null)
             {
-                healthBarUI.stats = this;
-                ui.transform.SetParent(transform, worldPositionStays: true);
+                healthBarUI.healthSource = this; // <-- correct assignment
+                ui.transform.SetParent(transform, true);
                 healthBarUI.ForceUpdateUI();
             }
         }
@@ -59,7 +65,8 @@ public class MinionStats : MonoBehaviour, IEnemy
 
         healthBarUI?.ForceUpdateUI();
 
-        if (currentHealth <= 0) Die();
+        if (currentHealth <= 0)
+            Die();
     }
 
     void Die()
@@ -71,12 +78,18 @@ public class MinionStats : MonoBehaviour, IEnemy
             GoldManager.Instance.AddGold(goldOnDeath, transform.position + Vector3.up * 1.5f);
 
         OnDeath?.Invoke();
-        if (healthBarUI != null) Destroy(healthBarUI.gameObject);
+
+        if (healthBarUI != null)
+            Destroy(healthBarUI.gameObject);
+
         Destroy(gameObject);
     }
 
-    // IEnemy implementation
+    // --- IHealth Implementation ---
     public float CurrentHealth => currentHealth;
-    public float Progress => progressDistance;
+    public float MaxHealth => maxHealth;
+
+    // --- IEnemy Implementation ---
+    public float Progress => movement != null ? movement.Progress : float.MinValue;
     public Transform Transform => transform;
 }
