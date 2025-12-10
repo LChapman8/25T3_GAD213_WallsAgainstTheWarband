@@ -11,11 +11,17 @@ public class EnemiesRemainingUI : MonoBehaviour
     {
         if (enemiesText == null) return;
 
+        // Check endless mode first
         if (endlessManager != null && endlessManager.endlessActive)
+        {
             enemiesText.text = "Enemies: Unlimited";
-        else if (spawner != null)
+            return;
+        }
+
+        if (spawner != null)
             enemiesText.text = $"Enemies: {spawner.enemiesAlive}";
     }
+
 
     public void SetUnlimitedMode()
     {

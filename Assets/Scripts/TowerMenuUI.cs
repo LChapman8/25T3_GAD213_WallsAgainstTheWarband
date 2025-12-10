@@ -41,8 +41,15 @@ public class TowerMenuUI : MonoBehaviour
     {
         if (panel != null)
             panel.SetActive(false);
+
+        if (currentTower != null)
+        {
+            currentTower.HideRangeIndicator(); // turn off range when menu closes
+        }
+
         currentTower = null;
     }
+
 
     private void OnUpgradePressed()
     {

@@ -76,4 +76,11 @@ public class TowerAttack : MonoBehaviour
         if (shootSound != null)
             PlaySoundAtPosition.PlayClip(shootSound, firePoint.position);
     }
+
+    // ====== GIZMO ======
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, range);
+    }
 }

@@ -23,13 +23,19 @@ public class WaveCounterUI : MonoBehaviour
     {
         if (waveText == null) return;
 
+        // Always check endless mode first
         if (endlessManager != null && endlessManager.endlessActive)
+        {
             waveText.text = "Wave: Unlimited";
-        else if (waveNumber < 0)
+            return;
+        }
+
+        if (waveNumber < 0)
             waveText.text = "Wave: Boss Round";
         else
             waveText.text = $"Wave: {waveNumber}/{waveManager.totalWaves}";
     }
+
 
     public void SetUnlimitedMode()
     {

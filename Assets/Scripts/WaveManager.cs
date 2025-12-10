@@ -17,6 +17,10 @@ public class WaveManager : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip waveStartClip;
 
+    [Header("Final Wave Warning")]
+    public SimpleWaveWarning finalWaveWarning;   // drag in your warning object
+    public float finalWaveDelay = 3f;             // how long warning stays up
+
     public delegate void WaveEvent(int waveNumber);
     public event WaveEvent OnWaveStarted;
 
@@ -60,20 +64,33 @@ public class WaveManager : MonoBehaviour
 
         yield return StartCoroutine(spawner.SpawnEnemiesRoutine());
 
-        // wait until wave is fully cleared
+        //  WAIT UNTIL ALL ENEMIES ARE DEAD
         while (spawner.enemiesAlive > 0)
             yield return null;
 
-        //  END OF WAVE GOLD REWARD
+        //  END OF WAVE REWARD
         if (GoldManager.Instance != null)
             GoldManager.Instance.AddGold(goldPerWave);
 
-        yield return new WaitForSeconds(timeBetweenWaves);
+        //  FINAL WAVE WARNING (BEFORE BOSS)
+        if (currentWave == totalWaves && finalWaveWarning != null)
+        {
+            finalWaveWarning.ShowWarning();
+            yield return new WaitForSeconds(finalWaveDelay);
+        }
+        else
+        {
+            yield return new WaitForSeconds(timeBetweenWaves);
+        }
 
         if (currentWave < totalWaves)
+        {
             FadeInButton();
+        }
         else
+        {
             StartCoroutine(BossWaveRoutine());
+        }
 
         isSpawning = false;
     }
@@ -88,8 +105,7 @@ public class WaveManager : MonoBehaviour
 
         audioSource?.PlayOneShot(waveStartClip);
 
-        // Inform UI that this is a boss round
-        OnWaveStarted?.Invoke(-1); // -1 = Boss Round
+        OnWaveStarted?.Invoke(-1); // Boss Wave
 
         yield return StartCoroutine(spawner.SpawnBossRoutine());
 

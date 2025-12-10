@@ -47,6 +47,7 @@ public class TowerPlacementManager : MonoBehaviour
     {
         if (goldManager != null && goldManager.CurrentGold < cost)
         {
+            FloatingTextManager.Instance?.ShowText($"Not Enough Gold!");
             Debug.Log("Not enough gold!");
             return;
         }
