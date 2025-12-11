@@ -16,7 +16,7 @@ public class PlayerClickMovement : MonoBehaviour
     [Header("Move VFX")]
     public GameObject clickVFXPrefab;
     public GameObject blockedVFXPrefab;
-    public LayerMask forbiddenLayer; // still blocks forbidden areas
+    public LayerMask forbiddenLayer; 
 
     [Header("Audio")]
     public AudioSource runAudio;
@@ -93,11 +93,19 @@ public class PlayerClickMovement : MonoBehaviour
 
     private void HandleInput()
     {
+        // UI blocking click
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            Debug.Log("Movement blocked: Click was over UI.");
             return;
+        }
 
+        // Cooldown preventing click
         if (Time.time - lastClickTime < clickCooldown)
+        {
+            Debug.Log($"Movement blocked: Click on cooldown ({(Time.time - lastClickTime):F2}/{clickCooldown}).");
             return;
+        }
 
         if (Input.GetMouseButtonDown(1))
         {
@@ -106,36 +114,34 @@ public class PlayerClickMovement : MonoBehaviour
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
+                Debug.Log("Raycast hit: " + hit.collider.name);
+
                 Vector3 clickPoint = hit.point;
                 clickPoint.y = fixedY;
 
-                Vector3 lookDir = clickPoint - transform.position;
-                lookDir.y = 0;
-                if (lookDir.sqrMagnitude > 0.01f)
-                    transform.rotation = Quaternion.LookRotation(lookDir);
-
-                // Stay within allowed radius
+                // Check distance radius
                 if (Vector3.Distance(startPosition, clickPoint) > maxMoveRadius)
                 {
-                    SpawnBlockedVFX(clickPoint);
-                    Debug.Log("Target out of range");
-                    return;
-                }
-
-                // Check forbidden zones only (ignore towers completely)
-                if (Physics.CheckSphere(clickPoint, 0.1f, forbiddenLayer.value))
-                {
+                    Debug.Log("Movement blocked: Target out of allowed radius.");
                     SpawnBlockedVFX(clickPoint);
                     return;
                 }
 
+                // If everything is fine, move
                 pathPoints.Clear();
                 targetPosition = AdjustStopPoint(clickPoint);
                 isMoving = true;
+
+                Debug.Log("Movement started toward: " + targetPosition);
                 SpawnClickVFX(clickPoint);
+            }
+            else
+            {
+                Debug.Log("Movement blocked: Raycast hit nothing.");
             }
         }
     }
+
 
     private Vector3 AdjustStopPoint(Vector3 destination)
     {

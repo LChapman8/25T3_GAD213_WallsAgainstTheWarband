@@ -13,7 +13,7 @@ public class TowerClickable : MonoBehaviour
     public float damageIncreasePercent = 0.25f; // 25% increase
 
     [Header("Range Indicator")]
-    public GameObject rangeIndicator; // Drag your range object here
+    public GameObject rangeIndicator;
 
     private bool isUpgraded = false;
     private GoldManager goldManager;

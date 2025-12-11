@@ -6,7 +6,7 @@ public class BaseTriggerDamage : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip hitSFX;
 
-    public ScreenShake screenShake; // reference your shake script
+    public ScreenShake screenShake; 
     private BaseHealth baseHealth;
 
     private void Start()

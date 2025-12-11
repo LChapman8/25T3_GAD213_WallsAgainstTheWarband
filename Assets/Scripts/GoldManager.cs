@@ -9,8 +9,8 @@ public class GoldManager : MonoBehaviour
     public TextMeshProUGUI goldText;
 
     [Header("Gold UI")]
-    public GameObject goldPopupPrefab; // assign prefab in inspector
-    public Sprite goldIcon;            // assign your gold icon sprite here
+    public GameObject goldPopupPrefab; 
+    public Sprite goldIcon;            
 
     public int CurrentGold { get; private set; }
 

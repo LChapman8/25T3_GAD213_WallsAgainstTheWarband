@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviour
     public void MainMenu()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenu");   // Make sure your scene is added to Build Settings
+        SceneManager.LoadScene("MainMenu");  
     }
 
     public void ExitGame()

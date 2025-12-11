@@ -112,6 +112,10 @@ public class WaveManager : MonoBehaviour
         while (spawner.enemiesAlive > 0)
             yield return null;
 
+        // Boss defeated reward
+        if (GoldManager.Instance != null)
+            GoldManager.Instance.AddGold(200);
+
         Debug.Log("BOSS DEFEATED – YOU WIN");
         isSpawning = false;
     }

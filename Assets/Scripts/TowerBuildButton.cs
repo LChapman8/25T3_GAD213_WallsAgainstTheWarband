@@ -4,9 +4,9 @@ using UnityEngine.UI;
 public class TowerBuildButton : MonoBehaviour
 {
     [Header("Tower Setup")]
-    public GameObject towerPrefab;           // The full tower prefab (used when actually building)
-    public GameObject ghostTowerPrefab;      // The transparent preview version
-    public int towerCost = 50;               // Gold cost for this tower
+    public GameObject towerPrefab;          
+    public GameObject ghostTowerPrefab;      
+    public int towerCost = 50;               
 
     private Button button;
 

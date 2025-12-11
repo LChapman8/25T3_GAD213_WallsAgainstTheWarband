@@ -45,7 +45,7 @@ public class MinionStats : MonoBehaviour, IEnemy, IHealth
             healthBarUI = ui.GetComponent<WorldSpaceHealthBar>();
             if (healthBarUI != null)
             {
-                healthBarUI.healthSource = this; // <-- correct assignment
+                healthBarUI.healthSource = this; 
                 ui.transform.SetParent(transform, true);
                 healthBarUI.ForceUpdateUI();
             }

@@ -3,7 +3,7 @@ using System.Collections;
 
 public class SimpleWaveWarning : MonoBehaviour
 {
-    public GameObject warningUI;   // Drag your big text object here
+    public GameObject warningUI;   
     public AudioSource audioSource;
     public AudioClip warningClip;
     public float displayTime = 3f;

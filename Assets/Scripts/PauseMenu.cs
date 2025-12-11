@@ -23,7 +23,7 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1f;
         isPaused = false;
 
-        // Keep cursor active for your click systems
+        // Keep cursor active for click systems
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }

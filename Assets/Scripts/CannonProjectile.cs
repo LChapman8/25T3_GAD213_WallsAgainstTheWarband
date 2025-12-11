@@ -12,11 +12,18 @@ public class CannonProjectile : MonoBehaviour
     private Vector3 destination;
     private bool detached;
 
+    private Vector3 spinAxis;
+    private float spinSpeed;
+
     public void Initialize(IEnemy target, int damage)
     {
         this.target = target;
         this.damage = damage;
         destination = target.Transform.position;
+
+        // Random spin setup
+        spinAxis = Random.onUnitSphere;   // random direction
+        spinSpeed = Random.Range(180f, 540f); // degrees per second
     }
 
     void Update()
@@ -39,7 +46,12 @@ public class CannonProjectile : MonoBehaviour
     void Move()
     {
         Vector3 dir = (destination - transform.position).normalized;
+
+        // Move forward
         transform.position += dir * speed * Time.deltaTime;
+
+        // Spin randomly
+        transform.Rotate(spinAxis, spinSpeed * Time.deltaTime, Space.Self);
     }
 
     void Explode()
