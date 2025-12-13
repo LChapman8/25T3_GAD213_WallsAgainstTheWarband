@@ -156,7 +156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   towerName: Cannon Tower
   sellValue: 60
-  upgradeCost: 60
+  upgradeCost: 50
   damageIncreasePercent: 0.25
   rangeIndicator: {fileID: 62224430963445271}
 --- !u!64 &5364925632188067215

@@ -87,6 +87,8 @@ public class PlayerClickMovement : MonoBehaviour
 
             // Otherwise, hide UI
             TowerMenuUI.Instance.Hide();
+            TowerClickable.HideAllRanges();
+
         }
     }
 
